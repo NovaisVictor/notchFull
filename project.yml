@@ -1,0 +1,30 @@
+name: NotchAgents
+options:
+  bundleIdPrefix: com.victornovais
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  NotchAgents:
+    type: application
+    platform: macOS
+    sources:
+      - NotchAgents
+    info:
+      path: NotchAgents/Info.plist
+      properties:
+        CFBundleDisplayName: NotchAgents
+        # Agent app: no Dock icon and no main menu; the notch is the UI.
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.victornovais.NotchAgents
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        # Ad-hoc signing for local builds; switch to a Developer ID for distribution.
+        CODE_SIGN_IDENTITY: "-"
