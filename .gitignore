@@ -5,3 +5,5 @@ build/
 DerivedData/
 xcuserdata/
 *.profraw
+# Local research notes, not published
+docs/

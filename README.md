@@ -45,7 +45,6 @@ NotchFull/
   LiveActivities/      atividades do notch fechado: mídia (efeitos e captura de áudio), bateria, Bluetooth,
                        downloads e eventos próximos do calendário
   Settings/            janela de ajustes com previews: Aparência, Nook e Live Activities
-docs/                  análise de referência do NotchNook
 ```
 
 ## Comportamento atual
