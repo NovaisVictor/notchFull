@@ -1,8 +1,8 @@
 # NotchNook Pro 2.0.3 — mapa de arquitetura (Fase 1)
 
-Referência para construir o notchAgents do zero. Nada aqui é código do
+Referência para construir o notchFull do zero. Nada aqui é código do
 NotchNook: são nomes de tipos, membros e APIs observados no binário, usados
-para entender a arquitetura. A implementação do notchAgents é própria.
+para entender a arquitetura. A implementação do notchFull é própria.
 
 ## Legenda de confiança
 
@@ -33,7 +33,7 @@ SHA-256 do executável: `ae70974d90bb8ae58d1e78ec8e5494f40f24360b9632776669b6088
   calendários, localização.
 - Atualização via Sparkle (feed em Cloudflare Workers).
 
-Implicação para o notchAgents: app fora da App Store e sem sandbox, para poder
+Implicação para o notchFull: app fora da App Store e sem sandbox, para poder
 ler `~/.claude`, `~/.codex` etc. e usar APIs privadas.
 
 ## Stack (observado: frameworks linkados e bundles SPM)
@@ -74,7 +74,7 @@ conforme o hover.
 | `SLSMainConnectionID`, `SLSSpaceCreate`, `SLSSpaceSetAbsoluteLevel`, `SLSSpaceAddWindowsAndRemoveFromSpaces`, `SLSShowSpaces` (SkyLight) | Criar um Space próprio de nível alto para exibir a janela por cima de apps em tela cheia e da tela de bloqueio |
 | `MRMediaRemoteGetNowPlayingClients`, `MRMediaRemoteSetElapsedTime` (MediaRemote) | Now Playing; complementado pelo `MediaRemoteAdapter.framework` e AppleScript (`executeAppleScript`) |
 
-APIs privadas podem quebrar entre versões do macOS. No notchAgents, isolar
+APIs privadas podem quebrar entre versões do macOS. No notchFull, isolar
 cada uma atrás de um protocolo, com fallback.
 
 ### Estado e interação
@@ -143,13 +143,13 @@ cada uma atrás de um protocolo, com fallback.
 5. **Live Activities** como camada separada para o estado fechado.
 6. **Permissões centralizadas** num `PermissionsManager`.
 
-## Proposta de estrutura base para o notchAgents (sem agents)
+## Proposta de estrutura base para o notchFull (sem agents)
 
 Escopo da primeira etapa: o notch funcionando, com uma camada de widgets e
 Live Activities pronta para receber o módulo de agents depois.
 
 ```
-notchAgents/
+notchFull/
   App/                 AppDelegate, ponto de entrada, LSUIElement
   Notch/
     Window/            NotchWindow (NSPanel), posicionamento por NSScreen
@@ -280,7 +280,7 @@ funções separadas.
 
 ## Próximos passos
 
-- Validar as decisões em aberto e criar o esqueleto do notchAgents.
+- Validar as decisões em aberto e criar o esqueleto do notchFull.
 - Opcional: pseudocódigo de `openNotch`/`closeNotch`, `NotchGesturer` e
   `NotchShape.path(in:)`, se precisarmos reproduzir a animação de perto.
 - Mapear o subsistema de agents (`models/AgentBridge/`,

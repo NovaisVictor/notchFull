@@ -1,4 +1,4 @@
-name: NotchAgents
+name: NotchFull
 options:
   bundleIdPrefix: com.victornovais
   deploymentTarget:
@@ -10,20 +10,34 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 targets:
-  NotchAgents:
+  NotchFull:
     type: application
     platform: macOS
     sources:
-      - NotchAgents
+      - NotchFull
     info:
-      path: NotchAgents/Info.plist
+      path: NotchFull/Info.plist
       properties:
-        CFBundleDisplayName: NotchAgents
+        CFBundleDisplayName: NotchFull
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # Agent app: no Dock icon and no main menu; the notch is the UI.
         LSUIElement: true
+        NSCalendarsFullAccessUsageDescription: NotchFull shows your upcoming events in the notch.
+        NSAppleEventsUsageDescription: NotchFull reads the current track and controls playback in Spotify and Music.
+        NSBluetoothAlwaysUsageDescription: NotchFull shows your Bluetooth devices and their battery when they connect.
+        NSAudioCaptureUsageDescription: NotchFull listens to your music player's audio to animate the visualizer. Nothing is recorded or stored.
+    entitlements:
+      path: NotchFull/NotchFull.entitlements
+      properties:
+        # Hardened runtime blocks these resources unless the entitlement is present.
+        com.apple.security.automation.apple-events: true
+        com.apple.security.device.audio-input: true
+        com.apple.security.device.bluetooth: true
+        com.apple.security.personal-information.calendars: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.victornovais.NotchAgents
+        PRODUCT_BUNDLE_IDENTIFIER: com.victornovais.NotchFull
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
         # Ad-hoc signing for local builds; switch to a Developer ID for distribution.
