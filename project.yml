@@ -39,6 +39,15 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.victornovais.NotchFull
         ENABLE_HARDENED_RUNTIME: YES
-        CODE_SIGN_STYLE: Automatic
-        # Ad-hoc signing for local builds; switch to a Developer ID for distribution.
-        CODE_SIGN_IDENTITY: "-"
+      configs:
+        # A stable development identity keeps privacy permissions (Bluetooth, Calendar, Automation) across
+        # local rebuilds; ad-hoc signatures change every build and macOS asks again each time. The entitlements
+        # used do not need a provisioning profile, so manual signing works with the free Personal Team.
+        Debug:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Development: victornovaislima@gmail.com (8W897BLPJ5)"
+          DEVELOPMENT_TEAM: KDX44D889T
+        # CI release builds are ad-hoc until a Developer ID certificate and notarization are set up.
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "-"
