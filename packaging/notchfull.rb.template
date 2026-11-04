@@ -7,7 +7,7 @@ cask "notchfull" do
   desc "Notch app with widgets and live activities"
   homepage "https://github.com/NovaisVictor/notchFull"
 
-  depends_on macos: ">= :tahoe"
+  depends_on macos: :tahoe
 
   app "NotchFull.app"
 

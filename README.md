@@ -3,12 +3,30 @@
 App de notch para macOS 26+, construído do zero. A primeira etapa é a base do
 notch; a área de agents de IA vem depois.
 
-## Requisitos
+## Instalar
+
+```bash
+brew tap novaisvictor/tap
+brew trust novaisvictor/tap
+brew install --cask notchfull
+```
+
+O app ainda não é notarizado. Na primeira abertura, libere em **Ajustes do
+Sistema → Privacidade e Segurança → Abrir mesmo assim**, ou rode
+`xattr -dr com.apple.quarantine /Applications/NotchFull.app`.
+
+Novas versões saem ao publicar uma tag `vX.Y.Z`: o workflow de release compila
+o app, cria a Release e atualiza o cask em
+[homebrew-tap](https://github.com/NovaisVictor/homebrew-tap).
+
+## Desenvolvimento
+
+### Requisitos
 
 - macOS 26 e Xcode 26
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 
-## Gerar e rodar
+### Gerar e rodar
 
 O `.xcodeproj` é gerado a partir do `project.yml` e não é versionado.
 
