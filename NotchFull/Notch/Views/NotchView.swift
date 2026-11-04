@@ -6,7 +6,7 @@ struct NotchView: View {
     let openSettings: () -> Void
 
     private var topRadius: CGFloat { model.isOpen ? 14 : 6 }
-    private var bottomRadius: CGFloat { model.isOpen ? 28 : 10 }
+    private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isPeeking ? 16 : 10 }
 
     var body: some View {
         // The shape is widened by the ears so the body under the menu bar matches the physical notch.
@@ -26,7 +26,7 @@ struct NotchView: View {
                         activity: activity,
                         services: services,
                         closedSize: model.closedSize,
-                        isTrailingSlotHovered: model.isTrailingSlotHovered
+                        hoveredSlot: model.hasInteractiveSlots ? model.hoveredSlot : .none
                     )
                     .transition(.opacity)
                 }
@@ -43,6 +43,7 @@ struct NotchView: View {
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: model.isOpen)
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: size)
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: model.activity)
+            .animation(.spring(response: 0.32, dampingFraction: 0.78), value: model.isPeeking)
             .environment(\.notchStyle, style)
     }
 

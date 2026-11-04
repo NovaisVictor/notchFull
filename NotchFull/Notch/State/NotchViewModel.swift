@@ -10,8 +10,18 @@ final class NotchViewModel {
     private let liveActivities: LiveActivityCenter
     private let interaction: NotchInteraction
     private(set) var isOpen = false
-    /// Pointer is over the trailing live activity slot, which acts as a button instead of opening the notch.
-    private(set) var isTrailingSlotHovered = false
+    /// Slot of the closed notch under the pointer. Interactive slots act on their own instead of opening the notch:
+    /// the leading one peeks at details below the notch, the trailing one is a button.
+    private(set) var hoveredSlot: HoveredSlot = .none
+
+    enum HoveredSlot {
+        case none
+        case leading
+        case trailing
+    }
+
+    /// Height of the strip shown below the closed notch while peeking.
+    static let peekHeight: CGFloat = 24
 
     init(closedSize: CGSize, layout: WidgetLayoutStore, liveActivities: LiveActivityCenter, interaction: NotchInteraction) {
         self.closedSize = closedSize
@@ -33,11 +43,16 @@ final class NotchViewModel {
         liveActivities.current
     }
 
-    /// Closed size including the live activity slots on each side, when one is running.
+    /// Closed size including the live activity slots on each side, and the peek strip while peeking.
     var closedDisplaySize: CGSize {
         guard activity != nil else { return closedSize }
         let side = LiveActivityCenter.sideWidth(closedHeight: closedSize.height)
-        return CGSize(width: closedSize.width + side * 2, height: closedSize.height)
+        let height = closedSize.height + (isPeeking ? Self.peekHeight : 0)
+        return CGSize(width: closedSize.width + side * 2, height: height)
+    }
+
+    var isPeeking: Bool {
+        hasInteractiveSlots && hoveredSlot == .leading
     }
 
     var openSize: CGSize {
@@ -48,19 +63,19 @@ final class NotchViewModel {
         isOpen ? openSize : closedDisplaySize
     }
 
-    /// Whether the trailing slot is interactive for the current activity.
-    var hasInteractiveTrailingSlot: Bool {
+    /// Whether the side slots are interactive for the current activity.
+    var hasInteractiveSlots: Bool {
         activity == .media
     }
 
     func open() {
-        isTrailingSlotHovered = false
+        hoveredSlot = .none
         isOpen = true
     }
 
-    func setTrailingSlotHovered(_ isHovered: Bool) {
-        guard isTrailingSlotHovered != isHovered else { return }
-        isTrailingSlotHovered = isHovered
+    func setHoveredSlot(_ slot: HoveredSlot) {
+        guard hoveredSlot != slot else { return }
+        hoveredSlot = slot
     }
 
     func close() {

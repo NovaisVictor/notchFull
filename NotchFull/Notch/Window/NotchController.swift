@@ -49,29 +49,49 @@ final class NotchController {
                 window.ignoresMouseEvents = true
             }
         } else {
-            let displayRect = geometry.topCenteredRect(size: model.closedDisplaySize)
-            let side = LiveActivityCenter.sideWidth(closedHeight: geometry.closedSize.height)
-            let trailingSlot = CGRect(x: displayRect.maxX - side, y: displayRect.minY, width: side, height: displayRect.height)
+            handleClosedMouseMoved(to: location)
+        }
+    }
 
-            if model.hasInteractiveTrailingSlot, trailingSlot.contains(location) {
+    private func handleClosedMouseMoved(to location: CGPoint) {
+        // The display rect includes the peek strip while peeking; the top band is the menu-bar-high row.
+        let displayRect = geometry.topCenteredRect(size: model.closedDisplaySize)
+        let bandHeight = geometry.closedSize.height
+        let side = LiveActivityCenter.sideWidth(closedHeight: bandHeight)
+        let topBand = CGRect(x: displayRect.minX, y: displayRect.maxY - bandHeight, width: displayRect.width, height: bandHeight)
+        let leadingSlot = CGRect(x: topBand.minX, y: topBand.minY, width: side, height: bandHeight)
+        let trailingSlot = CGRect(x: topBand.maxX - side, y: topBand.minY, width: side, height: bandHeight)
+        let peekStrip = CGRect(x: displayRect.minX, y: displayRect.minY, width: displayRect.width, height: displayRect.height - bandHeight)
+
+        if model.hasInteractiveSlots {
+            if trailingSlot.contains(location) {
                 // The slot is a button: accept clicks without opening the notch.
-                model.setTrailingSlotHovered(true)
+                model.setHoveredSlot(.trailing)
                 window.ignoresMouseEvents = false
                 return
             }
-            model.setTrailingSlotHovered(false)
-
-            // Everything else in the closed notch opens it, including the leading slot.
-            var openTarget = displayRect.insetBy(dx: -Self.closedHoverInset.width, dy: -Self.closedHoverInset.height)
-            if model.hasInteractiveTrailingSlot {
-                openTarget.size.width = trailingSlot.minX - openTarget.minX
-            }
-            if openTarget.contains(location) {
-                model.open()
+            // While peeking, the strip below belongs to the peek so the pointer can rest on it to read.
+            if leadingSlot.contains(location) || (model.isPeeking && peekStrip.contains(location)) {
+                model.setHoveredSlot(.leading)
                 window.ignoresMouseEvents = false
-            } else {
-                window.ignoresMouseEvents = true
+                return
             }
+        }
+        model.setHoveredSlot(.none)
+
+        // The rest of the closed notch opens it: the center between interactive slots, or all of it otherwise.
+        let openTarget: CGRect
+        if model.hasInteractiveSlots {
+            openTarget = CGRect(x: leadingSlot.maxX, y: topBand.minY, width: trailingSlot.minX - leadingSlot.maxX, height: bandHeight)
+                .insetBy(dx: 0, dy: -Self.closedHoverInset.height)
+        } else {
+            openTarget = topBand.insetBy(dx: -Self.closedHoverInset.width, dy: -Self.closedHoverInset.height)
+        }
+        if openTarget.contains(location) {
+            model.open()
+            window.ignoresMouseEvents = false
+        } else {
+            window.ignoresMouseEvents = true
         }
     }
 
