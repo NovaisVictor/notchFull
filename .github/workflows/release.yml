@@ -1,0 +1,59 @@
+name: Release
+
+# Builds the app for a version tag (v1.2.3), publishes it as a GitHub release
+# and updates the cask in NovaisVictor/homebrew-tap.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ARCHIVE="NotchFull-$VERSION.zip"
+          xcodegen generate
+          xcodebuild -project NotchFull.xcodeproj -scheme NotchFull -configuration Release \
+            -derivedDataPath build \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            build
+          ditto -c -k --keepParent build/Build/Products/Release/NotchFull.app "$ARCHIVE"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
+          echo "SHA256=$(shasum -a 256 "$ARCHIVE" | cut -d ' ' -f 1)" >> "$GITHUB_ENV"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$ARCHIVE" --title "NotchFull $VERSION" --generate-notes
+
+      - name: Update Homebrew cask
+        env:
+          # Deploy key with write access to the tap only.
+          TAP_DEPLOY_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$TAP_DEPLOY_KEY" > ~/.ssh/tap_key
+          chmod 600 ~/.ssh/tap_key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/tap_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+
+          git clone git@github.com:NovaisVictor/homebrew-tap.git tap
+          mkdir -p tap/Casks
+          sed -e "s/{{VERSION}}/$VERSION/" -e "s/{{SHA256}}/$SHA256/" packaging/notchfull.rb.template > tap/Casks/notchfull.rb
+
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/notchfull.rb
+          git commit -m "notchfull $VERSION"
+          git push
