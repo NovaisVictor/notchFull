@@ -65,6 +65,7 @@ private struct SettingsDetail: View {
         switch pane {
         case .appearance: AppearancePage(appearance: services.appearance)
         case .screens: ScreensPage(settings: services.screens)
+        case .behavior: BehaviorPage(behavior: services.behavior)
         case .nook: NookPage(services: services)
         case let .widget(kind): WidgetSettingsPage(kind: kind, services: services)
         case .liveActivities: LiveActivitiesPage(services: services)

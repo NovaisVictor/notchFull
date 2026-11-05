@@ -5,6 +5,7 @@ import SwiftUI
 enum SettingsPane: Hashable, Identifiable {
     case appearance
     case screens
+    case behavior
     case nook
     case widget(WidgetKind)
     case liveActivities
@@ -17,7 +18,7 @@ enum SettingsPane: Hashable, Identifiable {
     }
 
     static let groups: [Group] = [
-        Group(title: "General", panes: [.appearance, .screens]),
+        Group(title: "General", panes: [.appearance, .screens, .behavior]),
         Group(title: "Workspaces", panes: [.nook] + WidgetKind.allCases.map(SettingsPane.widget)),
         Group(title: "Features", panes: [.liveActivities]),
         Group(title: "NotchFull", panes: [.about]),
@@ -27,6 +28,7 @@ enum SettingsPane: Hashable, Identifiable {
         switch self {
         case .appearance: "appearance"
         case .screens: "screens"
+        case .behavior: "behavior"
         case .nook: "nook"
         case let .widget(kind): "widget.\(kind.rawValue)"
         case .liveActivities: "liveActivities"
@@ -38,6 +40,7 @@ enum SettingsPane: Hashable, Identifiable {
         switch self {
         case .appearance: "Appearance"
         case .screens: "Screens"
+        case .behavior: "Behavior"
         case .nook: "Nook"
         case let .widget(kind): kind.displayName
         case .liveActivities: "Live Activities"
@@ -49,6 +52,7 @@ enum SettingsPane: Hashable, Identifiable {
         switch self {
         case .appearance: "paintbrush.fill"
         case .screens: "display"
+        case .behavior: "hand.point.up.left.fill"
         case .nook: "square.grid.2x2.fill"
         case let .widget(kind): kind.systemImage
         case .liveActivities: "waveform"
@@ -60,6 +64,7 @@ enum SettingsPane: Hashable, Identifiable {
         switch self {
         case .appearance: .indigo
         case .screens: .blue
+        case .behavior: .orange
         case .nook: .teal
         case let .widget(kind):
             switch kind {
@@ -78,6 +83,7 @@ enum SettingsPane: Hashable, Identifiable {
         switch self {
         case .appearance: "How the open notch looks: solid black or Liquid Glass."
         case .screens: "Which screens show the notch, what happens in full screen and on screens without a notch."
+        case .behavior: "How the notch opens, what happens while you type, haptic feedback and trackpad gestures."
         case .nook: "The widgets in the open notch, their order and their width."
         case let .widget(kind): "Options for the \(kind.displayName) widget."
         case .liveActivities: "What the closed notch shows while music plays and when things happen on your Mac."
@@ -92,6 +98,9 @@ enum SettingsPane: Hashable, Identifiable {
             ["Notch style", "Classic", "Smoked glass", "Frosted glass", "Clear glass", "Glass level", "Liquid Glass"]
         case .screens:
             ["Displays", "Monitors", "External", "Full screen", "Handle", "Transparent handle", "Screens without a notch"]
+        case .behavior:
+            ["Open on hover", "Click", "Haptic feedback", "Typing", "Keep open while typing", "Gestures", "Swipe",
+             "Vertical swipes", "Horizontal swipes", "Next track", "Invert"]
         case .nook:
             ["Widgets", "Reorder", "Remove", "Add", "Width", "Cells", "Restore default widgets"]
         case let .widget(kind):

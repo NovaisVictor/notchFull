@@ -1,6 +1,6 @@
 # 1 — Telas
 
-> **Status: feito.** A telas sem notch usam a altura real da barra de menus como
+> **Status: feito.** As telas sem notch usam a altura real da barra de menus como
 > faixa de hover e de Live Activities; o manipulador é só o desenho em repouso.
 > "Show handle" desligado deixa a área invisível, mas o hover continua abrindo.
 

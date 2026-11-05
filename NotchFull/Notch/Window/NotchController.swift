@@ -9,21 +9,26 @@ final class NotchController {
     private static let openHoverInset = CGSize(width: 24, height: 24)
 
     let geometry: NotchGeometry
-    private let model: NotchViewModel
-    private let window: NotchWindow
-
     /// Stable identity of the screen this controller serves.
     let displayUUID: String?
+    private let model: NotchViewModel
+    private let window: NotchWindow
+    private let behavior: BehaviorSettings
+    private let nowPlaying: NowPlayingStore
     private var isHiddenForFullscreen = false
+    private var gestures = NotchGestureRecognizer()
 
     init(screen: NSScreen, services: AppServices, openSettings: @escaping () -> Void) {
         geometry = NotchGeometry(screen: screen, settings: services.screens)
         displayUUID = screen.displayUUID
+        behavior = services.behavior
+        nowPlaying = services.nowPlaying
         model = NotchViewModel(
             geometry: geometry,
             layout: services.layout,
             liveActivities: services.liveActivities,
-            interaction: services.interaction
+            interaction: services.interaction,
+            behavior: services.behavior
         )
 
         // Sized for the widest open state so opening never resizes the window; the shape animates inside it.
@@ -31,7 +36,10 @@ final class NotchController {
         let frame = geometry.topCenteredRect(size: CGSize(width: maxOpenSize.width + 64, height: maxOpenSize.height + 16))
         window = NotchWindow(contentRect: frame)
 
-        let hostingView = FirstMouseHostingView(rootView: NotchView(model: model, services: services, openSettings: openSettings))
+        let notchView = NotchView(model: model, services: services, openSettings: openSettings) { [weak self] in
+            self?.openNotch()
+        }
+        let hostingView = FirstMouseHostingView(rootView: notchView)
         hostingView.sizingOptions = []
         window.contentView = hostingView
 
@@ -61,15 +69,65 @@ final class NotchController {
     func handleMouseMoved(to location: CGPoint) {
         guard !isHiddenForFullscreen else { return }
         if model.isOpen {
-            let openRect = geometry.topCenteredRect(size: model.openSize)
-                .insetBy(dx: -Self.openHoverInset.width, dy: -Self.openHoverInset.height)
             if !openRect.contains(location), !model.isPinnedOpen {
-                model.close()
-                window.ignoresMouseEvents = true
+                closeNotch()
             }
         } else {
             handleClosedMouseMoved(to: location)
         }
+    }
+
+    /// Trackpad swipes over the notch: down opens, up (over the top band) closes, sideways changes the track.
+    func handleScroll(_ event: NSEvent, at location: CGPoint) {
+        guard !isHiddenForFullscreen, behavior.gesturesEnabled, isOverGestureArea(location) else { return }
+        guard let gesture = gestures.handle(event) else { return }
+
+        switch gesture {
+        case .down where !model.isOpen && behavior.verticalGestures:
+            openNotch()
+        case .up where model.isOpen && behavior.verticalGestures && !model.isPinnedOpen:
+            closeNotch()
+        case .left, .right:
+            // Sideways swipes only act on the closed notch; open, they would fight the widgets' own scrolling.
+            guard !model.isOpen, behavior.horizontalMediaGestures, nowPlaying.activePlayer != nil else { return }
+            let forward = (gesture == .left) != behavior.invertsMediaGestures
+            nowPlaying.send(forward ? .nextTrack : .previousTrack)
+            behavior.playHaptic()
+        default:
+            break
+        }
+    }
+
+    func tearDown() {
+        window.close()
+    }
+
+    private var openRect: CGRect {
+        geometry.topCenteredRect(size: model.openSize)
+            .insetBy(dx: -Self.openHoverInset.width, dy: -Self.openHoverInset.height)
+    }
+
+    /// Closed: the notch and its activity slots. Open: only the top band, so vertical swipes inside widgets scroll them.
+    private func isOverGestureArea(_ location: CGPoint) -> Bool {
+        if model.isOpen {
+            let band = geometry.topCenteredRect(size: CGSize(width: model.openSize.width, height: geometry.closedSize.height))
+            return band.insetBy(dx: 0, dy: -Self.closedHoverInset.height).contains(location)
+        }
+        return geometry.topCenteredRect(size: model.closedInteractionSize)
+            .insetBy(dx: -Self.closedHoverInset.width, dy: -Self.closedHoverInset.height)
+            .contains(location)
+    }
+
+    private func openNotch() {
+        guard !model.isOpen else { return }
+        model.open()
+        window.ignoresMouseEvents = false
+        behavior.playHaptic()
+    }
+
+    private func closeNotch() {
+        model.close()
+        window.ignoresMouseEvents = true
     }
 
     private func handleClosedMouseMoved(to location: CGPoint) {
@@ -86,12 +144,14 @@ final class NotchController {
             if trailingSlot.contains(location) {
                 // The slot is a button: accept clicks without opening the notch.
                 model.setHoveredSlot(.trailing)
+                model.setHoveringToOpen(false)
                 window.ignoresMouseEvents = false
                 return
             }
             // While peeking, the strip below belongs to the peek so the pointer can rest on it to read.
             if leadingSlot.contains(location) || (model.isPeeking && peekStrip.contains(location)) {
                 model.setHoveredSlot(.leading)
+                model.setHoveringToOpen(false)
                 window.ignoresMouseEvents = false
                 return
             }
@@ -106,15 +166,18 @@ final class NotchController {
         } else {
             openTarget = topBand.insetBy(dx: -Self.closedHoverInset.width, dy: -Self.closedHoverInset.height)
         }
-        if openTarget.contains(location) {
-            model.open()
-            window.ignoresMouseEvents = false
-        } else {
-            window.ignoresMouseEvents = true
-        }
-    }
 
-    func tearDown() {
-        window.close()
+        guard openTarget.contains(location) else {
+            model.setHoveringToOpen(false)
+            window.ignoresMouseEvents = true
+            return
+        }
+        if behavior.opensOnHover {
+            openNotch()
+        } else {
+            // Click-to-open: highlight and accept the click that `NotchView` turns into `openNotch()`.
+            model.setHoveringToOpen(true)
+            window.ignoresMouseEvents = false
+        }
     }
 }

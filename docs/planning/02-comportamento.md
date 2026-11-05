@@ -1,5 +1,11 @@
 # 2 — Comportamento
 
+> **Status: feito**, exceto "Bloquear enquanto digita", que espera a resposta
+> sobre a diferença em relação a "Impedir fechar ao tirar o mouse" (ver
+> perguntas). Com o notch aberto, gestos só valem na faixa de cima: os
+> horizontais ficam desligados e os verticais só fecham por ali, para não
+> brigarem com a rolagem dos widgets.
+
 ## Objetivo
 
 Configurar como o notch abre, o que acontece enquanto o usuário digita, a

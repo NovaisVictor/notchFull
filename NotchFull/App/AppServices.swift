@@ -7,6 +7,7 @@ final class AppServices {
     let appearance = AppearanceSettings()
     let interaction = NotchInteraction()
     let screens = ScreenSettings()
+    let behavior = BehaviorSettings()
     let fullscreen = FullscreenMonitor()
     let calendar = CalendarStore()
     let todoSettings = TodoSettings()

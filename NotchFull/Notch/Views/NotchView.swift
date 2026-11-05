@@ -4,6 +4,8 @@ struct NotchView: View {
     let model: NotchViewModel
     let services: AppServices
     let openSettings: () -> Void
+    /// Opens the notch from a click, used when hovering alone does not open it.
+    let onClickToOpen: () -> Void
 
     private var topRadius: CGFloat { model.isRestingOnHandle ? 0 : model.isOpen ? 14 : 6 }
     private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isPeeking ? 16 : 10 }
@@ -14,6 +16,11 @@ struct NotchView: View {
 
         background
             .frame(width: size.width + topRadius * 2, height: size.height)
+            .scaleEffect(model.isHoveringToOpen ? 1.06 : 1, anchor: .top)
+            .contentShape(.rect)
+            .onTapGesture {
+                if !model.isOpen { onClickToOpen() }
+            }
             .overlay {
                 if model.isOpen {
                     WidgetGrid(services: services)
@@ -44,6 +51,7 @@ struct NotchView: View {
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: size)
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: model.activity)
             .animation(.spring(response: 0.32, dampingFraction: 0.78), value: model.isPeeking)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: model.isHoveringToOpen)
             .environment(\.notchStyle, style)
     }
 

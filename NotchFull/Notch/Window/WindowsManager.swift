@@ -37,6 +37,21 @@ final class WindowsManager {
             MainActor.assumeIsolated { self?.routeMouseLocation() }
             return event
         }
+        // Scroll monitoring needs no permission either; controllers ignore swipes away from the notch.
+        NSEvent.addGlobalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            MainActor.assumeIsolated { self?.routeScroll(event) }
+        }
+        NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            MainActor.assumeIsolated { self?.routeScroll(event) }
+            return event
+        }
+    }
+
+    private func routeScroll(_ event: NSEvent) {
+        let location = NSEvent.mouseLocation
+        for controller in controllers {
+            controller.handleScroll(event, at: location)
+        }
     }
 
     private func routeMouseLocation() {

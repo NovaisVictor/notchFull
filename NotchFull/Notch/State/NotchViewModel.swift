@@ -11,7 +11,10 @@ final class NotchViewModel {
     private let layout: WidgetLayoutStore
     private let liveActivities: LiveActivityCenter
     private let interaction: NotchInteraction
+    private let behavior: BehaviorSettings
     private(set) var isOpen = false
+    /// Click-to-open mode: the pointer rests where a click would open the notch.
+    private(set) var isHoveringToOpen = false
     /// Slot of the closed notch under the pointer. Interactive slots act on their own instead of opening the notch:
     /// the leading one peeks at details below the notch, the trailing one is a button.
     private(set) var hoveredSlot: HoveredSlot = .none
@@ -25,17 +28,24 @@ final class NotchViewModel {
     /// Height of the strip shown below the closed notch while peeking.
     static let peekHeight: CGFloat = 24
 
-    init(geometry: NotchGeometry, layout: WidgetLayoutStore, liveActivities: LiveActivityCenter, interaction: NotchInteraction) {
+    init(
+        geometry: NotchGeometry,
+        layout: WidgetLayoutStore,
+        liveActivities: LiveActivityCenter,
+        interaction: NotchInteraction,
+        behavior: BehaviorSettings
+    ) {
         closedSize = geometry.closedSize
         handleSize = geometry.handleSize
         self.layout = layout
         self.liveActivities = liveActivities
         self.interaction = interaction
+        self.behavior = behavior
     }
 
-    /// Typing in the notch keeps it open even if the pointer drifts away.
+    /// Typing in the notch keeps it open even if the pointer drifts away, unless the user turned that off.
     var isPinnedOpen: Bool {
-        interaction.isEditingText
+        interaction.isEditingText && behavior.keepsOpenWhileTyping
     }
 
     func endTextEditing() {
@@ -83,7 +93,13 @@ final class NotchViewModel {
 
     func open() {
         hoveredSlot = .none
+        isHoveringToOpen = false
         isOpen = true
+    }
+
+    func setHoveringToOpen(_ isHovering: Bool) {
+        guard isHoveringToOpen != isHovering else { return }
+        isHoveringToOpen = isHovering
     }
 
     func setHoveredSlot(_ slot: HoveredSlot) {
