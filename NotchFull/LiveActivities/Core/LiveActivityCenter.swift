@@ -2,7 +2,7 @@ import CoreGraphics
 import Observation
 
 /// Decides which live activity the closed notch shows, in priority order:
-/// a short-lived event (charger, Bluetooth, reminder), then an ongoing download, then music.
+/// a short-lived event (charger, Bluetooth, reminder), then an ongoing download, the Pomodoro, then music.
 @MainActor
 @Observable
 final class LiveActivityCenter {
@@ -13,6 +13,7 @@ final class LiveActivityCenter {
         case download(DownloadsMonitor.Download)
         case downloadFinished(fileName: String)
         case upcomingEvent(UpcomingEvent)
+        case pomodoro
     }
 
     static let eventDuration: Duration = .seconds(3.5)
@@ -21,6 +22,8 @@ final class LiveActivityCenter {
     private let mediaSettings: MediaActivitySettings
     private let downloads: DownloadsMonitor
     private let activitySettings: ActivitySettings
+    private let pomodoro: PomodoroTimer
+    private let pomodoroSettings: PomodoroSettings
     private(set) var event: Activity?
     @ObservationIgnored private var eventExpiry: Task<Void, Never>?
 
@@ -28,17 +31,22 @@ final class LiveActivityCenter {
         nowPlaying: NowPlayingStore,
         mediaSettings: MediaActivitySettings,
         downloads: DownloadsMonitor,
-        activitySettings: ActivitySettings
+        activitySettings: ActivitySettings,
+        pomodoro: PomodoroTimer,
+        pomodoroSettings: PomodoroSettings
     ) {
         self.nowPlaying = nowPlaying
         self.mediaSettings = mediaSettings
         self.downloads = downloads
         self.activitySettings = activitySettings
+        self.pomodoro = pomodoro
+        self.pomodoroSettings = pomodoroSettings
     }
 
     var current: Activity? {
         if let event { return event }
         if activitySettings.showsDownloads, let download = downloads.current { return .download(download) }
+        if pomodoroSettings.showsInNotch, pomodoro.isActive { return .pomodoro }
         if mediaSettings.isEnabled, nowPlaying.isActive { return .media }
         return nil
     }

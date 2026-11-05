@@ -1,4 +1,6 @@
 import AppKit
+import Observation
+import SwiftUI
 
 /// Owns the notch window and state for one screen.
 @MainActor
@@ -17,12 +19,17 @@ final class NotchController {
     private let nowPlaying: NowPlayingStore
     private var isHiddenForFullscreen = false
     private var gestures = NotchGestureRecognizer()
+    private let satellites: SatelliteCenter
+    private let satelliteWindow: NotchWindow
+    private let satelliteHover = SatelliteHoverState()
+    private var isSatelliteVisible = false
 
     init(screen: NSScreen, services: AppServices, openSettings: @escaping () -> Void) {
         geometry = NotchGeometry(screen: screen, settings: services.screens)
         displayUUID = screen.displayUUID
         behavior = services.behavior
         nowPlaying = services.nowPlaying
+        satellites = services.satellites
         model = NotchViewModel(
             geometry: geometry,
             layout: services.layout,
@@ -36,6 +43,16 @@ final class NotchController {
         let frame = geometry.topCenteredRect(size: CGSize(width: maxOpenSize.width + 64, height: maxOpenSize.height + 16))
         window = NotchWindow(contentRect: frame)
 
+        // Satellites float just below the menu bar, beside the notch and its activity slot, so they never
+        // cover menu bar items or the notch itself.
+        let side = LiveActivityCenter.sideWidth(closedHeight: geometry.closedSize.height)
+        let satelliteSize = CGSize(width: SatelliteCenter.expandedWidth + 8, height: SatelliteCenter.diameter + 4)
+        let satelliteOrigin = CGPoint(
+            x: geometry.screenFrame.midX + geometry.closedSize.width / 2 + side + SatelliteCenter.margin,
+            y: geometry.screenFrame.maxY - geometry.closedSize.height - SatelliteCenter.margin - satelliteSize.height
+        )
+        satelliteWindow = NotchWindow(contentRect: CGRect(origin: satelliteOrigin, size: satelliteSize))
+
         let notchView = NotchView(model: model, services: services, openSettings: openSettings) { [weak self] in
             self?.openNotch()
         }
@@ -46,6 +63,15 @@ final class NotchController {
         // Transparent window areas would otherwise swallow clicks meant for the menu bar and apps below.
         window.ignoresMouseEvents = true
         window.orderFrontRegardless()
+
+        let strip = SatelliteHost(center: services.satellites, timer: services.pomodoro, hover: satelliteHover) { [weak self] _ in
+            self?.openNotch()
+        }
+        let satelliteView = FirstMouseHostingView(rootView: strip)
+        satelliteView.sizingOptions = []
+        satelliteWindow.contentView = satelliteView
+        satelliteWindow.ignoresMouseEvents = true
+        observeSatelliteVisibility()
 
         // Clicking another app ends typing in the notch, so it may close again. Lives as long as the window.
         NotificationCenter.default.addObserver(forName: NSWindow.didResignKeyNotification, object: window, queue: .main) { [weak model] _ in
@@ -64,10 +90,12 @@ final class NotchController {
         } else {
             window.orderFrontRegardless()
         }
+        updateSatelliteVisibility()
     }
 
     func handleMouseMoved(to location: CGPoint) {
         guard !isHiddenForFullscreen else { return }
+        updateSatelliteHover(at: location)
         if model.isOpen {
             if !openRect.contains(location), !model.isPinnedOpen {
                 closeNotch()
@@ -100,6 +128,7 @@ final class NotchController {
 
     func tearDown() {
         window.close()
+        satelliteWindow.close()
     }
 
     private var openRect: CGRect {
@@ -116,6 +145,40 @@ final class NotchController {
         return geometry.topCenteredRect(size: model.closedInteractionSize)
             .insetBy(dx: -Self.closedHoverInset.width, dy: -Self.closedHoverInset.height)
             .contains(location)
+    }
+
+    /// Shown while any satellite is active and the notch is closed; the open notch shows the same information.
+    private func observeSatelliteVisibility() {
+        withObservationTracking {
+            updateSatelliteVisibility()
+        } onChange: { [weak self] in
+            Task { @MainActor in self?.observeSatelliteVisibility() }
+        }
+    }
+
+    private func updateSatelliteVisibility() {
+        let shouldShow = !satellites.active.isEmpty && !model.isOpen && !isHiddenForFullscreen
+        guard shouldShow != isSatelliteVisible else { return }
+        isSatelliteVisible = shouldShow
+        if shouldShow {
+            satelliteWindow.orderFrontRegardless()
+        } else {
+            satelliteHover.hovered = nil
+            satelliteWindow.ignoresMouseEvents = true
+            satelliteWindow.orderOut(nil)
+        }
+    }
+
+    /// Only the satellite itself takes the pointer; the rest of its window lets clicks through.
+    private func updateSatelliteHover(at location: CGPoint) {
+        guard isSatelliteVisible, let first = satellites.active.first else { return }
+        let frame = satelliteWindow.frame
+        let width = satelliteHover.hovered == nil ? SatelliteCenter.diameter : SatelliteCenter.expandedWidth
+        let target = CGRect(x: frame.minX, y: frame.maxY - SatelliteCenter.diameter, width: width, height: SatelliteCenter.diameter)
+            .insetBy(dx: -4, dy: -4)
+        let isOver = target.contains(location)
+        satelliteHover.hovered = isOver ? first : nil
+        satelliteWindow.ignoresMouseEvents = !isOver
     }
 
     private func openNotch() {

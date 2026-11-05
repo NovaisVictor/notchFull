@@ -60,6 +60,8 @@ struct LiveActivityView: View {
             DownloadFinishedLeadingView()
         case .upcomingEvent:
             UpcomingEventLeadingView()
+        case .pomodoro:
+            PomodoroActivityLeadingView(timer: services.pomodoro)
         }
     }
 
@@ -84,6 +86,8 @@ struct LiveActivityView: View {
             DownloadFinishedTrailingView()
         case let .upcomingEvent(event):
             UpcomingEventTrailingView(event: event)
+        case .pomodoro:
+            PomodoroActivityTrailingView(timer: services.pomodoro)
         }
     }
 }

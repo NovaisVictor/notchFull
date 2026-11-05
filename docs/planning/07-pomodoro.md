@@ -1,5 +1,12 @@
 # 7 — Pomodoro e o círculo flutuante
 
+> **Status: feito.** Decisões: a pausa começa sozinha ao fim do foco e o
+> próximo foco espera um clique; sem pausa longa; a chuva é **sintetizada** em
+> tempo real (ruído marrom + chiado + gotas), sem arquivo de áudio nem licença;
+> o sino usa sons do sistema. A régua aceita só arrasto (rolagem lateral exigia
+> interceptar eventos por baixo do SwiftUI). Notificações do sistema ficaram de
+> fora.
+
 ## Objetivo
 
 Um timer de foco e pausa no Nook, com indicação contínua do tempo restante fora

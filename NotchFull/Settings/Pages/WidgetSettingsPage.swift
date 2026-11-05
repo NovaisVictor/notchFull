@@ -66,7 +66,7 @@ struct WidgetSettingsPanel: View {
     }
 
     private var hasOptions: Bool {
-        kind == .music || kind == .todo
+        kind == .music || kind == .todo || kind == .pomodoro
     }
 
     @ViewBuilder
@@ -77,8 +77,59 @@ struct WidgetSettingsPanel: View {
                 .padding(.top, 12)
         case .todo:
             TodoOptions(settings: services.todoSettings, store: services.todos)
+        case .pomodoro:
+            PomodoroOptions(settings: services.pomodoroSettings, rain: services.rain)
         case .calendar, .clock, .agents:
             EmptyView()
+        }
+    }
+}
+
+private struct PomodoroOptions: View {
+    @Bindable var settings: PomodoroSettings
+    let rain: RainAmbience
+
+    var body: some View {
+        SettingsRow(title: "Focus", info: "Length of a focus session. The ruler in the widget changes it too.") {
+            minutesStepper($settings.focusMinutes, range: PomodoroSettings.focusRange)
+        }
+        SettingsRow(title: "Break", info: "Starts automatically when a focus session ends.") {
+            minutesStepper($settings.breakMinutes, range: PomodoroSettings.breakRange)
+        }
+        SettingsRow(title: "Show in the notch while running") {
+            Toggle("", isOn: $settings.showsInNotch).labelsHidden().toggleStyle(.switch)
+        }
+        SettingsRow(title: "Floating circle", info: "A small circle next to the notch with the time left, while the timer runs.") {
+            Toggle("", isOn: $settings.showsSatellite).labelsHidden().toggleStyle(.switch)
+        }
+        SettingsRow(title: "Chime") {
+            HStack {
+                Picker("", selection: $settings.chimeSound) {
+                    ForEach(PomodoroSettings.chimeSounds, id: \.self) { Text($0).tag($0) }
+                }
+                .labelsHidden()
+                .frame(width: 140)
+                Button("Play", systemImage: "play.fill") { settings.playChime() }
+                    .labelStyle(.iconOnly)
+            }
+        }
+        SettingsRow(title: "Play chime") {
+            Toggle("", isOn: $settings.playsChime).labelsHidden().toggleStyle(.switch)
+        }
+        SettingsRow(title: "Rain during breaks", info: "Soft synthesized rain while a break runs.", showsDivider: rain.lastError != nil) {
+            Toggle("", isOn: $settings.rainDuringBreaks).labelsHidden().toggleStyle(.switch)
+        }
+        if let error = rain.lastError {
+            Label(error, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
+                .padding(.top, 8)
+        }
+    }
+
+    private func minutesStepper(_ value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        Stepper(value: value, in: range) {
+            Text("\(value.wrappedValue) min").monospacedDigit()
         }
     }
 }

@@ -12,6 +12,10 @@ final class AppServices {
     let calendar = CalendarStore()
     let todoSettings = TodoSettings()
     let todos: TodoStore
+    let pomodoroSettings = PomodoroSettings()
+    let pomodoro: PomodoroTimer
+    let rain = RainAmbience()
+    let satellites: SatelliteCenter
     let nowPlaying = NowPlayingStore()
     let mediaSettings = MediaActivitySettings()
     let activitySettings = ActivitySettings()
@@ -24,14 +28,29 @@ final class AppServices {
 
     init() {
         todos = TodoStore(settings: todoSettings)
+        pomodoro = PomodoroTimer(settings: pomodoroSettings)
+        satellites = SatelliteCenter(timer: pomodoro, settings: pomodoroSettings)
         liveActivities = LiveActivityCenter(
             nowPlaying: nowPlaying,
             mediaSettings: mediaSettings,
             downloads: downloads,
-            activitySettings: activitySettings
+            activitySettings: activitySettings,
+            pomodoro: pomodoro,
+            pomodoroSettings: pomodoroSettings
         )
         routeEventsToLiveActivities()
         observeAudioDemand()
+        observeRainDemand()
+    }
+
+    /// Rain plays only during a running break, when the user turned it on.
+    private func observeRainDemand() {
+        let shouldPlay = withObservationTracking {
+            pomodoroSettings.rainDuringBreaks && pomodoro.phase == .rest && pomodoro.isRunning
+        } onChange: { [weak self] in
+            Task { @MainActor in self?.observeRainDemand() }
+        }
+        rain.setPlaying(shouldPlay)
     }
 
     /// Each event source reports raw changes; the user's activity settings decide what reaches the notch.

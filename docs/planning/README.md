@@ -12,14 +12,14 @@ código de terceiros.
 
 | # | Feature | Tamanho | Depende de |
 | --- | --- | --- | --- |
-| [F](00-fundacoes.md) | Fundações: shell de ajustes, células de widget, satélite flutuante, central de permissões (F1 e F2 feitas) | G | — |
+| [F](00-fundacoes.md) | Fundações: shell de ajustes, células de widget, satélite flutuante, central de permissões (F1, F2 e F3 feitas) | G | — |
 | [1](01-telas.md) | Telas: em quais telas aparece, tela cheia, manipulador em telas sem notch | M | F1 |
 | [2](02-comportamento.md) | Comportamento: abertura, resposta tátil, digitação e gestos | M | F1 |
 | [3](03-pulse.md) | Pulse: dados do sistema (CPU, RAM, GPU, disco, bateria, rede) | M | F1, F2 |
 | [4](04-notas.md) | Notas rápidas: texto rico, modo código, várias notas | G | F1, F2 |
 | [5](05-tarefas.md) | Tarefas: redesenho do widget, excluir, duração de foco, arquivamento | M | F1, F2 |
 | [6](06-hud.md) | HUD de volume e brilho | G | F1, F4 |
-| [7](07-pomodoro.md) | Pomodoro e o círculo flutuante (satélite) | G | F1, F2, F3 |
+| [7](07-pomodoro.md) | Pomodoro e o círculo flutuante (satélite) — feito | G | F1, F2, F3 |
 
 Tamanho: P (até 1 dia), M (2–4 dias), G (1 semana ou mais), considerando
 implementação, testes e revisão.

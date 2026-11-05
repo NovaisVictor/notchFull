@@ -3,6 +3,7 @@ import SwiftUI
 struct TodoWidgetView: View {
     let store: TodoStore
     let interaction: NotchInteraction
+    let pomodoro: PomodoroTimer
 
     @State private var draft = ""
     @State private var isAdding = false
@@ -17,7 +18,7 @@ struct TodoWidgetView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(store.visibleItems) { item in
-                        TodoRow(item: item, store: store)
+                        TodoRow(item: item, store: store, pomodoro: pomodoro)
                     }
                     if store.visibleItems.isEmpty && !isAdding {
                         Text("Nothing to do.")
@@ -101,6 +102,7 @@ struct TodoWidgetView: View {
 private struct TodoRow: View {
     let item: TodoItem
     let store: TodoStore
+    let pomodoro: PomodoroTimer
 
     @State private var isHovered = false
     @State private var isDropTarget = false
@@ -181,12 +183,21 @@ private struct TodoRow: View {
                 .help("Delete")
             }
         } else if let minutes = item.focusMinutes {
-            Text("\(minutes)m")
-                .font(.system(size: 10, weight: .semibold).monospacedDigit())
-                .foregroundStyle(.white.opacity(item.isDone ? 0.3 : 0.6))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(.white.opacity(0.1), in: .capsule)
+            let isFocusing = pomodoro.taskID == item.id
+            // The chip starts a focus session of that length for this task.
+            Button {
+                pomodoro.startFocus(minutes: minutes, taskID: item.id, title: item.title)
+            } label: {
+                Text("\(minutes)m")
+                    .font(.system(size: 10, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(isFocusing ? .orange : .white.opacity(item.isDone ? 0.3 : 0.6))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(isFocusing ? Color.orange.opacity(0.2) : .white.opacity(0.1), in: .capsule)
+            }
+            .buttonStyle(.plain)
+            .disabled(item.isDone)
+            .help("Start a \(minutes)-minute focus session")
         }
     }
 

@@ -88,6 +88,11 @@ Widgets como Notas e Tarefas têm largura ajustável ("Largura 5"). Hoje o
 
 ## F3 — Satélite flutuante
 
+> **Status: feito.** `SatelliteCenter` (enum fechado de satélites) e uma janela
+> por tela, logo abaixo da barra de menus, à direita do notch e do slot de Live
+> Activity — dentro da barra cobriria os ícones de menu. Some com o notch
+> aberto. Hover expande em cápsula com o tempo completo; clique abre o notch.
+
 ### Objetivo
 
 Um círculo pequeno, fora do notch e ao lado dele, que mostra um estado em

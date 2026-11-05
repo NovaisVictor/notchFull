@@ -51,7 +51,9 @@ struct WidgetGrid: View {
         switch kind {
         case .music: MusicWidgetView(store: services.nowPlaying, layout: services.appearance.musicLayout)
         case .calendar: CalendarWidgetView(store: services.calendar)
-        case .todo: TodoWidgetView(store: services.todos, interaction: services.interaction)
+        case .todo: TodoWidgetView(store: services.todos, interaction: services.interaction, pomodoro: services.pomodoro)
+        case .pomodoro:
+            PomodoroWidgetView(timer: services.pomodoro, settings: services.pomodoroSettings, hapticsEnabled: services.behavior.haptics)
         case .clock: ClockWidgetView()
         case .agents: AgentsWidgetView()
         }
