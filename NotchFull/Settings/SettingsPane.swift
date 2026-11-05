@@ -87,12 +87,20 @@ enum SettingsPane: Hashable, Identifiable {
         case .nook:
             ["Widgets", "Reorder", "Remove", "Add", "Width", "Cells", "Restore default widgets"]
         case let .widget(kind):
-            ["Width", "Cells", "Remove from Nook", "Add to Nook"] + (kind == .music ? ["Player layout", "Standard", "Expanded"] : [])
+            ["Width", "Cells", "Remove from Nook", "Add to Nook"] + Self.widgetKeywords(kind)
         case .liveActivities:
             ["Media", "Effect", "Audio Spectrograph", "Waves", "Vibrating Circle", "GIF", "Album corner radius", "Color effects",
              "Battery", "Low battery", "Charging", "AirPods", "Bluetooth", "Downloads", "Upcoming events", "Calendar reminder"]
         case .about:
             ["Version", "Updates", "GitHub", "Source code"]
+        }
+    }
+
+    private static func widgetKeywords(_ kind: WidgetKind) -> [String] {
+        switch kind {
+        case .music: ["Player layout", "Standard", "Expanded"]
+        case .todo: ["Tasks", "Show completed tasks", "Archive", "Auto-archive", "Focus time"]
+        case .calendar, .clock, .agents: []
         }
     }
 

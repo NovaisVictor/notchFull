@@ -7,7 +7,8 @@ final class AppServices {
     let appearance = AppearanceSettings()
     let interaction = NotchInteraction()
     let calendar = CalendarStore()
-    let todos = TodoStore()
+    let todoSettings = TodoSettings()
+    let todos: TodoStore
     let nowPlaying = NowPlayingStore()
     let mediaSettings = MediaActivitySettings()
     let activitySettings = ActivitySettings()
@@ -19,6 +20,7 @@ final class AppServices {
     private var upcomingEvents: UpcomingEventNotifier?
 
     init() {
+        todos = TodoStore(settings: todoSettings)
         liveActivities = LiveActivityCenter(
             nowPlaying: nowPlaying,
             mediaSettings: mediaSettings,

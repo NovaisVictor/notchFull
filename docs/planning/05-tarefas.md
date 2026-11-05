@@ -1,5 +1,10 @@
 # 5 — Tarefas (redesenho)
 
+> **Status: feito**, exceto "Mostrar atividade" (significado em aberto, ver
+> perguntas) e iniciar o Pomodoro pelo chip (depende do [Pomodoro](07-pomodoro.md)).
+> Tarefas concluídas antes desta versão não têm data de conclusão e por isso não
+> são arquivadas automaticamente; use "Archive completed now" nos ajustes.
+
 ## Objetivo
 
 Corrigir e completar o widget de tarefas, que hoje tem defeitos visíveis.
