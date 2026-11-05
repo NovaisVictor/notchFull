@@ -77,6 +77,7 @@ enum SettingsPane: Hashable, Identifiable {
             case .todo: .orange
             case .pomodoro: .red
             case .pulse: .green
+            case .notes: .yellow
             case .clock: .gray
             case .agents: .purple
             }
@@ -130,6 +131,7 @@ enum SettingsPane: Hashable, Identifiable {
         case .todo: ["Tasks", "Show completed tasks", "Archive", "Auto-archive", "Focus time"]
         case .pomodoro: ["Timer", "Focus", "Break", "Chime", "Sound", "Rain", "Floating circle", "Satellite", "Stopwatch"]
         case .pulse: ["CPU", "RAM", "GPU", "Disk", "Battery", "Network", "Memory", "Rings", "Graphs", "Explain on hover", "Update interval"]
+        case .notes: ["Notes", "Rich text", "Bold", "Code mode", "Syntax highlighting", "Export", "Scroll indicator"]
         case .calendar, .clock, .agents: []
         }
     }

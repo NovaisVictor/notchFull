@@ -1,5 +1,17 @@
 # 4 — Notas rápidas
 
+> **Status: feito.** Decisões: **sem dependência** — o modo código usa um
+> destaque próprio por expressões regulares para Swift, JavaScript/TypeScript,
+> Python, JSON e shell, com a linguagem detectada por palavras-chave e símbolos
+> (texto monoespaçado sem cores quando nada se destaca). O modo código é
+> **global para o widget**; uma nota editada nele perde a formatação e passa a
+> ser salva como texto puro (`<id>.txt`), as ricas ficam em `<id>.rtfd`. As
+> cores do destaque nunca vão para o arquivo. A troca de notas é um menu (não
+> miniaturas), com nova nota, exportar (Markdown, texto ou RTF) e excluir com
+> "Undo". A janela expandida mostra a nota atual; trocar de nota nela troca no
+> widget também. Como o app não tem menu principal, o editor trata ⌘X/⌘C/⌘V/
+> ⌘A/⌘Z/⇧⌘Z além de ⌘B/⌘I/⌘U. Imagens coladas não são aceitas.
+
 ## Objetivo
 
 Widget de notas dentro do notch, com texto rico e um modo para código.

@@ -66,7 +66,7 @@ struct WidgetSettingsPanel: View {
     }
 
     private var hasOptions: Bool {
-        kind == .music || kind == .todo || kind == .pomodoro || kind == .pulse
+        kind == .music || kind == .todo || kind == .pomodoro || kind == .pulse || kind == .notes
     }
 
     @ViewBuilder
@@ -81,8 +81,34 @@ struct WidgetSettingsPanel: View {
             PomodoroOptions(settings: services.pomodoroSettings, rain: services.rain)
         case .pulse:
             PulseOptions(settings: services.pulseSettings, sampler: services.pulse)
+        case .notes:
+            NotesOptions(settings: services.notesSettings, store: services.notes)
         case .calendar, .clock, .agents:
             EmptyView()
+        }
+    }
+}
+
+private struct NotesOptions: View {
+    @Bindable var settings: NotesSettings
+    let store: NoteStore
+
+    var body: some View {
+        SettingsRow(title: "Show scroll indicator") {
+            Toggle("", isOn: $settings.showsScrollIndicator).labelsHidden().toggleStyle(.switch)
+        }
+        SettingsRow(
+            title: "Code mode",
+            info: "Shows every note in a monospaced font with syntax highlighting for Swift, JavaScript, TypeScript, Python, JSON and shell. Notes edited in code mode lose their formatting and are saved as plain text.",
+            showsDivider: store.lastError != nil
+        ) {
+            Toggle("", isOn: $settings.codeMode).labelsHidden().toggleStyle(.switch)
+        }
+        if let error = store.lastError {
+            Label(error, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
+                .padding(.top, 8)
         }
     }
 }

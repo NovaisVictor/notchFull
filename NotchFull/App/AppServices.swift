@@ -14,6 +14,9 @@ final class AppServices {
     let todos: TodoStore
     let pomodoroSettings = PomodoroSettings()
     let pomodoro: PomodoroTimer
+    let notesSettings = NotesSettings()
+    let notes: NoteStore
+    let noteWindow: NoteWindowController
     let rain = RainAmbience()
     let satellites: SatelliteCenter
     let nowPlaying = NowPlayingStore()
@@ -33,6 +36,8 @@ final class AppServices {
     init() {
         todos = TodoStore(settings: todoSettings)
         pomodoro = PomodoroTimer(settings: pomodoroSettings)
+        notes = NoteStore(settings: notesSettings)
+        noteWindow = NoteWindowController(store: notes, settings: notesSettings)
         satellites = SatelliteCenter(timer: pomodoro, settings: pomodoroSettings)
         pulse = PulseSampler(settings: pulseSettings, battery: battery)
         liveActivities = LiveActivityCenter(

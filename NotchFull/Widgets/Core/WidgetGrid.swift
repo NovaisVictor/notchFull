@@ -55,6 +55,8 @@ struct WidgetGrid: View {
         case .pomodoro:
             PomodoroWidgetView(timer: services.pomodoro, settings: services.pomodoroSettings, hapticsEnabled: services.behavior.haptics)
         case .pulse: PulseWidgetView(sampler: services.pulse, settings: services.pulseSettings)
+        case .notes:
+            NotesWidgetView(store: services.notes, settings: services.notesSettings, interaction: services.interaction, window: services.noteWindow)
         case .clock: ClockWidgetView()
         case .agents: AgentsWidgetView()
         }
