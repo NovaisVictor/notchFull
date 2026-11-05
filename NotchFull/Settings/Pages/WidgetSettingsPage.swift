@@ -188,7 +188,7 @@ private struct PulseOptions: View {
                         )
                         .foregroundStyle(.white)
                         .padding(12)
-                        .frame(width: WidgetGridMetrics.cardWidth(span: WidgetKind.pulse.defaultSpan), height: 120)
+                        .frame(width: AppearanceSettings.defaultCellWidth * CGFloat(WidgetKind.pulse.defaultSpan), height: 120)
                         .background(Color(white: 0.11), in: .rect(cornerRadius: 16, style: .continuous))
                         .allowsHitTesting(false)
                     }

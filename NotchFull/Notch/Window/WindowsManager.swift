@@ -71,11 +71,13 @@ final class WindowsManager {
         applyFullscreenVisibility()
     }
 
-    /// Rebuilds the windows when the enabled screens or the handle geometry change.
+    /// Rebuilds the windows when the enabled screens, the handle or the notch size correction change.
     private func observeScreenSettings() {
         withObservationTracking {
             let settings = services.screens
+            let appearance = services.appearance
             _ = (settings.enabledDisplayUUIDs, settings.handleWidth, settings.handleHeight)
+            _ = (appearance.notchWidthAdjustment, appearance.notchHeightAdjustment)
         } onChange: { [weak self] in
             Task { @MainActor in
                 self?.scheduleRebuild()

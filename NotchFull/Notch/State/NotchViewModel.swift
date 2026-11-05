@@ -12,6 +12,7 @@ final class NotchViewModel {
     private let liveActivities: LiveActivityCenter
     private let interaction: NotchInteraction
     private let behavior: BehaviorSettings
+    private let appearance: AppearanceSettings
     private(set) var isOpen = false
     /// Click-to-open mode: the pointer rests where a click would open the notch.
     private(set) var isHoveringToOpen = false
@@ -33,7 +34,8 @@ final class NotchViewModel {
         layout: WidgetLayoutStore,
         liveActivities: LiveActivityCenter,
         interaction: NotchInteraction,
-        behavior: BehaviorSettings
+        behavior: BehaviorSettings,
+        appearance: AppearanceSettings
     ) {
         closedSize = geometry.closedSize
         handleSize = geometry.handleSize
@@ -41,6 +43,7 @@ final class NotchViewModel {
         self.liveActivities = liveActivities
         self.interaction = interaction
         self.behavior = behavior
+        self.appearance = appearance
     }
 
     /// Typing in the notch keeps it open even if the pointer drifts away, unless the user turned that off.
@@ -84,7 +87,7 @@ final class NotchViewModel {
     }
 
     var openSize: CGSize {
-        WidgetGridMetrics.openSize(for: layout.placements.map(\.span), closedHeight: closedSize.height)
+        appearance.gridMetrics.openSize(for: layout.placements.map(\.span), closedHeight: closedSize.height)
     }
 
     var currentSize: CGSize {

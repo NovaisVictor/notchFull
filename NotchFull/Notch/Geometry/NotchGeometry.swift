@@ -11,16 +11,17 @@ struct NotchGeometry {
     let handleSize: CGSize?
 
     @MainActor
-    init(screen: NSScreen, settings: ScreenSettings) {
+    init(screen: NSScreen, settings: ScreenSettings, appearance: AppearanceSettings) {
         screenFrame = screen.frame
 
         // The menu bar areas on each side of the housing are exact; the gap between them is the notch.
         if screen.hasPhysicalNotch,
            let left = screen.auxiliaryTopLeftArea,
            let right = screen.auxiliaryTopRightArea {
+            // The user's correction compensates for housings the measured insets do not match exactly.
             closedSize = CGSize(
-                width: screen.frame.width - left.width - right.width,
-                height: screen.safeAreaInsets.top
+                width: screen.frame.width - left.width - right.width + appearance.notchWidthAdjustment,
+                height: screen.safeAreaInsets.top + appearance.notchHeightAdjustment
             )
             hasPhysicalNotch = true
             handleSize = nil

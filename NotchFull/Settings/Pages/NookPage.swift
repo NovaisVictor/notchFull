@@ -63,7 +63,7 @@ private struct LiveNookPreview: View {
 
     var body: some View {
         let closedHeight = PreviewMetrics.closedSize.height
-        let openSize = WidgetGridMetrics.openSize(for: services.layout.placements.map(\.span), closedHeight: closedHeight)
+        let openSize = services.appearance.gridMetrics.openSize(for: services.layout.placements.map(\.span), closedHeight: closedHeight)
 
         GeometryReader { proxy in
             let scale = min(1, proxy.size.width / (openSize.width + 40))

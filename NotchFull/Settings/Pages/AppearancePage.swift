@@ -42,7 +42,91 @@ struct AppearancePage: View {
                 }
                 .disabled(appearance.notchStyle != .smokedGlass)
             }
+
+            SettingsSection(title: "Size", info: "The island is the open notch. The notch correction adjusts the measured size of the closed notch.") {
+                Grid(horizontalSpacing: 28, verticalSpacing: 18) {
+                    GridRow {
+                        SizeSlider(
+                            title: "Island width",
+                            value: $appearance.cellWidth,
+                            range: AppearanceSettings.cellWidthRange,
+                            defaultValue: AppearanceSettings.defaultCellWidth,
+                            labels: ("Compact", "Wide")
+                        )
+                        SizeSlider(
+                            title: "Island height",
+                            value: $appearance.cardHeight,
+                            range: AppearanceSettings.cardHeightRange,
+                            defaultValue: AppearanceSettings.defaultCardHeight,
+                            labels: ("Compact", "Tall")
+                        )
+                    }
+                    GridRow {
+                        SizeSlider(
+                            title: "Notch width",
+                            value: $appearance.notchWidthAdjustment,
+                            range: AppearanceSettings.notchWidthAdjustmentRange,
+                            defaultValue: 0,
+                            labels: ("Narrower", "Wider")
+                        )
+                        SizeSlider(
+                            title: "Notch height",
+                            value: $appearance.notchHeightAdjustment,
+                            range: AppearanceSettings.notchHeightAdjustmentRange,
+                            defaultValue: 0,
+                            labels: ("Shorter", "Taller")
+                        )
+                    }
+                }
+            }
+
+            SettingsSection(title: "Animation") {
+                SettingsRow(title: "Speed", info: "How long the notch takes to open and close.") {
+                    HStack(spacing: 10) {
+                        Text("Fast").font(.caption).foregroundStyle(.secondary)
+                        Slider(value: $appearance.animationDuration, in: AppearanceSettings.animationDurationRange)
+                            .frame(width: 200)
+                        Text("Slow").font(.caption).foregroundStyle(.secondary)
+                        Button("Default") { appearance.animationDuration = AppearanceSettings.defaultAnimationDuration }
+                            .controlSize(.small)
+                            .disabled(appearance.animationDuration == AppearanceSettings.defaultAnimationDuration)
+                    }
+                }
+                SettingsRow(title: "Bounce", info: "A springy overshoot when the notch opens and closes.", showsDivider: false) {
+                    Toggle("", isOn: $appearance.animationBounces).labelsHidden().toggleStyle(.switch)
+                }
+            }
         }
+    }
+}
+
+/// A labeled slider with its own reset button, laid out in a two-column grid.
+private struct SizeSlider: View {
+    let title: String
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let defaultValue: Double
+    let labels: (low: String, high: String)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title).font(.system(size: 13, weight: .semibold))
+                Spacer()
+                Button("Default") { value = defaultValue }
+                    .controlSize(.small)
+                    .disabled(value == defaultValue)
+            }
+            Slider(value: $value, in: range, step: 1)
+            HStack {
+                Text(labels.low)
+                Spacer()
+                Text(labels.high)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

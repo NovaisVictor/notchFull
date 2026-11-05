@@ -89,7 +89,7 @@ enum SettingsPane: Hashable, Identifiable {
 
     var summary: String {
         switch self {
-        case .appearance: "How the open notch looks: solid black or Liquid Glass."
+        case .appearance: "How the notch looks, how big it is and how it animates."
         case .screens: "Which screens show the notch, what happens in full screen and on screens without a notch."
         case .behavior: "How the notch opens, what happens while you type, haptic feedback and trackpad gestures."
         case .nook: "The widgets in the open notch, their order and their width."
@@ -104,7 +104,8 @@ enum SettingsPane: Hashable, Identifiable {
     var keywords: [String] {
         switch self {
         case .appearance:
-            ["Notch style", "Classic", "Smoked glass", "Frosted glass", "Clear glass", "Glass level", "Liquid Glass"]
+            ["Notch style", "Classic", "Smoked glass", "Frosted glass", "Clear glass", "Glass level", "Liquid Glass",
+             "Size", "Island width", "Island height", "Notch width", "Notch height", "Animation", "Speed", "Bounce"]
         case .screens:
             ["Displays", "Monitors", "External", "Full screen", "Handle", "Transparent handle", "Screens without a notch"]
         case .behavior:

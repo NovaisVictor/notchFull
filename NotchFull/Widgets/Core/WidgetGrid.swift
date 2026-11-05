@@ -15,6 +15,7 @@ struct WidgetGrid: View {
 
     var body: some View {
         let placements = services.layout.placements
+        let metrics = services.appearance.gridMetrics
 
         if placements.isEmpty {
             Text("No widgets enabled. Choose some in Settings.")
@@ -26,7 +27,7 @@ struct WidgetGrid: View {
                 HStack(spacing: WidgetGridMetrics.spacing) {
                     ForEach(placements) { placement in
                         card(for: placement)
-                            .frame(width: WidgetGridMetrics.cardWidth(span: placement.span), height: WidgetGridMetrics.cardHeight)
+                            .frame(width: metrics.cardWidth(span: placement.span), height: metrics.cardHeight)
                     }
                 }
             }

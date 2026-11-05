@@ -25,7 +25,7 @@ final class NotchController {
     private var isSatelliteVisible = false
 
     init(screen: NSScreen, services: AppServices, openSettings: @escaping () -> Void) {
-        geometry = NotchGeometry(screen: screen, settings: services.screens)
+        geometry = NotchGeometry(screen: screen, settings: services.screens, appearance: services.appearance)
         displayUUID = screen.displayUUID
         behavior = services.behavior
         nowPlaying = services.nowPlaying
@@ -35,7 +35,8 @@ final class NotchController {
             layout: services.layout,
             liveActivities: services.liveActivities,
             interaction: services.interaction,
-            behavior: services.behavior
+            behavior: services.behavior,
+            appearance: services.appearance
         )
 
         // Sized for the widest open state so opening never resizes the window; the shape animates inside it.

@@ -1,10 +1,7 @@
 import CoreGraphics
 
-/// Sizes of the open notch, derived from the widgets' widths in cells.
-enum WidgetGridMetrics {
-    /// One grid cell; a widget `span` cells wide is `span × cellWidth` points.
-    static let cellWidth: CGFloat = 58
-    static let cardHeight: CGFloat = 132
+/// Sizes of the open notch, derived from the widgets' widths in cells and the island size settings.
+struct WidgetGridMetrics {
     static let spacing: CGFloat = 10
     static let horizontalPadding: CGFloat = 18
     static let topGap: CGFloat = 8
@@ -13,22 +10,30 @@ enum WidgetGridMetrics {
     /// Wider layouts scroll horizontally instead of growing past this.
     static let maxOpenWidth: CGFloat = 960
 
-    static func cardWidth(span: Int) -> CGFloat {
+    /// One grid cell; a widget `span` cells wide is `span × cellWidth` points.
+    let cellWidth: CGFloat
+    let cardHeight: CGFloat
+
+    func cardWidth(span: Int) -> CGFloat {
         CGFloat(span) * cellWidth
     }
 
-    static func openSize(for spans: [Int], closedHeight: CGFloat) -> CGSize {
+    func openSize(for spans: [Int], closedHeight: CGFloat) -> CGSize {
         let cards = spans.map(cardWidth(span:)).reduce(0, +)
-        let gaps = CGFloat(max(spans.count - 1, 0)) * spacing
-        let width = min(max(cards + gaps + horizontalPadding * 2, minOpenWidth), maxOpenWidth)
-        return CGSize(width: width, height: openHeight(closedHeight: closedHeight))
+        let gaps = CGFloat(max(spans.count - 1, 0)) * Self.spacing
+        let width = min(max(cards + gaps + Self.horizontalPadding * 2, Self.minOpenWidth), Self.maxOpenWidth)
+        return CGSize(width: width, height: Self.openHeight(closedHeight: closedHeight, cardHeight: cardHeight))
     }
 
+    /// The largest open notch any setting allows; the window is sized to it so resizing never recreates the window.
     static func maxOpenSize(closedHeight: CGFloat) -> CGSize {
-        CGSize(width: maxOpenWidth, height: openHeight(closedHeight: closedHeight))
+        CGSize(
+            width: maxOpenWidth,
+            height: openHeight(closedHeight: closedHeight, cardHeight: AppearanceSettings.cardHeightRange.upperBound)
+        )
     }
 
-    private static func openHeight(closedHeight: CGFloat) -> CGFloat {
+    private static func openHeight(closedHeight: CGFloat, cardHeight: CGFloat) -> CGFloat {
         closedHeight + topGap + cardHeight + bottomPadding
     }
 }

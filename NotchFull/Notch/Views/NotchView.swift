@@ -7,52 +7,70 @@ struct NotchView: View {
     /// Opens the notch from a click, used when hovering alone does not open it.
     let onClickToOpen: () -> Void
 
-    private var topRadius: CGFloat { model.isRestingOnHandle ? 0 : model.isOpen ? 14 : 6 }
+    private var topRadius: CGFloat { model.isRestingOnHandle ? 0 : model.isOpen ? Self.openTopRadius : 6 }
     private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isExtendedBelow ? 16 : 10 }
+
+    /// Corner radius of the "ears" when open; the open content is laid out for it.
+    private static let openTopRadius: CGFloat = 14
 
     var body: some View {
         // The shape is widened by the ears so the body under the menu bar matches the physical notch.
         let size = model.currentSize
+        let frameWidth = size.width + topRadius * 2
+        let appearance = services.appearance
 
-        background
-            .frame(width: size.width + topRadius * 2, height: size.height)
-            .scaleEffect(model.isHoveringToOpen ? 1.06 : 1, anchor: .top)
-            .contentShape(.rect)
-            .onTapGesture {
-                if !model.isOpen { onClickToOpen() }
-            }
-            .overlay {
-                if model.isOpen {
-                    WidgetGrid(services: services)
-                        .padding(.horizontal, topRadius + WidgetGridMetrics.horizontalPadding)
-                        .padding(.top, model.closedSize.height + WidgetGridMetrics.topGap)
-                        .padding(.bottom, WidgetGridMetrics.bottomPadding)
-                        .transition(.opacity)
-                } else if let activity = model.activity {
-                    LiveActivityView(
-                        activity: activity,
-                        services: services,
-                        closedSize: model.closedSize,
-                        hoveredSlot: model.hasInteractiveSlots ? model.hoveredSlot : .none
-                    )
+        ZStack(alignment: .top) {
+            background
+                .frame(width: frameWidth, height: size.height)
+                .scaleEffect(model.isHoveringToOpen ? 1.06 : 1, anchor: .top)
+                .contentShape(.rect)
+                .onTapGesture {
+                    if !model.isOpen { onClickToOpen() }
+                }
+
+            if model.isOpen {
+                openContent
                     .transition(.opacity)
-                }
+            } else if let activity = model.activity {
+                LiveActivityView(
+                    activity: activity,
+                    services: services,
+                    closedSize: model.closedSize,
+                    hoveredSlot: model.hasInteractiveSlots ? model.hoveredSlot : .none
+                )
+                .frame(width: frameWidth, height: size.height)
+                .transition(.opacity)
             }
+        }
+        .frame(width: frameWidth, height: size.height, alignment: .top)
+        // The open content keeps its final size from the first frame and the growing shape reveals it,
+        // so widgets never re-lay out (and slide sideways) while the notch animates.
+        .mask(alignment: .top) {
+            NotchShape(topRadius: topRadius, bottomRadius: bottomRadius)
+                .frame(width: frameWidth, height: size.height)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .animation(appearance.notchAnimation, value: model.isOpen)
+        .animation(appearance.notchAnimation, value: size)
+        .animation(appearance.notchAnimation, value: model.activity)
+        .animation(appearance.detailAnimation, value: model.isPeeking)
+        .animation(appearance.detailAnimation, value: model.isHoveringToOpen)
+        .environment(\.notchStyle, style)
+    }
+
+    private var openContent: some View {
+        let openSize = model.openSize
+
+        return WidgetGrid(services: services)
+            .padding(.horizontal, Self.openTopRadius + WidgetGridMetrics.horizontalPadding)
+            .padding(.top, model.closedSize.height + WidgetGridMetrics.topGap)
+            .padding(.bottom, WidgetGridMetrics.bottomPadding)
+            .frame(width: openSize.width + Self.openTopRadius * 2, height: openSize.height)
             .overlay(alignment: .topTrailing) {
-                if model.isOpen {
-                    settingsButton
-                        .padding(.trailing, topRadius + WidgetGridMetrics.horizontalPadding)
-                        .frame(height: model.closedSize.height)
-                        .transition(.opacity)
-                }
+                settingsButton
+                    .padding(.trailing, Self.openTopRadius + WidgetGridMetrics.horizontalPadding)
+                    .frame(height: model.closedSize.height)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .animation(.spring(response: 0.38, dampingFraction: 0.8), value: model.isOpen)
-            .animation(.spring(response: 0.38, dampingFraction: 0.8), value: size)
-            .animation(.spring(response: 0.38, dampingFraction: 0.8), value: model.activity)
-            .animation(.spring(response: 0.32, dampingFraction: 0.78), value: model.isPeeking)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: model.isHoveringToOpen)
-            .environment(\.notchStyle, style)
     }
 
     private var style: NotchStyle {
