@@ -7,3 +7,5 @@ xcuserdata/
 *.profraw
 # Local research notes about third-party apps, not published
 docs/research/
+# Local agent tooling (worktrees, settings)
+.claude/
