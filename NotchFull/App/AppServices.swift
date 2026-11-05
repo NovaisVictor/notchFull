@@ -6,6 +6,8 @@ final class AppServices {
     let layout = WidgetLayoutStore()
     let appearance = AppearanceSettings()
     let interaction = NotchInteraction()
+    let screens = ScreenSettings()
+    let fullscreen = FullscreenMonitor()
     let calendar = CalendarStore()
     let todoSettings = TodoSettings()
     let todos: TodoStore

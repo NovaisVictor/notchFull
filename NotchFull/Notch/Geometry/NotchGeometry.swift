@@ -1,19 +1,21 @@
 import AppKit
 
-/// Physical notch measurements for one screen, in global screen coordinates (bottom-left origin).
+/// Notch measurements for one screen, in global screen coordinates (bottom-left origin).
 struct NotchGeometry {
-    /// Used on screens without a camera housing so the notch can still be shown and tested.
-    static let simulatedClosedSize = CGSize(width: 200, height: 32)
-
     let screenFrame: CGRect
+    /// The band the notch occupies when closed: the physical notch, or on screens without one a menu-bar-high
+    /// area the size of the handle's width. Live activities and hover use this band.
     let closedSize: CGSize
     let hasPhysicalNotch: Bool
+    /// The small bar drawn at rest on screens without a notch; `nil` on notched screens.
+    let handleSize: CGSize?
 
-    init(screen: NSScreen) {
+    @MainActor
+    init(screen: NSScreen, settings: ScreenSettings) {
         screenFrame = screen.frame
 
         // The menu bar areas on each side of the housing are exact; the gap between them is the notch.
-        if screen.safeAreaInsets.top > 0,
+        if screen.hasPhysicalNotch,
            let left = screen.auxiliaryTopLeftArea,
            let right = screen.auxiliaryTopRightArea {
             closedSize = CGSize(
@@ -21,9 +23,11 @@ struct NotchGeometry {
                 height: screen.safeAreaInsets.top
             )
             hasPhysicalNotch = true
+            handleSize = nil
         } else {
-            closedSize = Self.simulatedClosedSize
+            closedSize = CGSize(width: settings.handleWidth, height: screen.menuBarHeight)
             hasPhysicalNotch = false
+            handleSize = CGSize(width: settings.handleWidth, height: settings.handleHeight)
         }
     }
 

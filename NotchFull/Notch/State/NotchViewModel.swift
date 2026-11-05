@@ -4,8 +4,10 @@ import CoreGraphics
 @MainActor
 @Observable
 final class NotchViewModel {
-    /// Physical notch size.
+    /// The closed band: the physical notch, or a menu-bar-high band on screens without one.
     let closedSize: CGSize
+    /// The bar drawn at rest on screens without a notch; `nil` on notched screens.
+    let handleSize: CGSize?
     private let layout: WidgetLayoutStore
     private let liveActivities: LiveActivityCenter
     private let interaction: NotchInteraction
@@ -23,8 +25,9 @@ final class NotchViewModel {
     /// Height of the strip shown below the closed notch while peeking.
     static let peekHeight: CGFloat = 24
 
-    init(closedSize: CGSize, layout: WidgetLayoutStore, liveActivities: LiveActivityCenter, interaction: NotchInteraction) {
-        self.closedSize = closedSize
+    init(geometry: NotchGeometry, layout: WidgetLayoutStore, liveActivities: LiveActivityCenter, interaction: NotchInteraction) {
+        closedSize = geometry.closedSize
+        handleSize = geometry.handleSize
         self.layout = layout
         self.liveActivities = liveActivities
         self.interaction = interaction
@@ -43,12 +46,22 @@ final class NotchViewModel {
         liveActivities.current
     }
 
-    /// Closed size including the live activity slots on each side, and the peek strip while peeking.
+    /// Closed and idle on a screen without a notch: only the small handle is drawn.
+    var isRestingOnHandle: Bool {
+        handleSize != nil && !isOpen && activity == nil
+    }
+
+    /// What the closed notch draws: the handle or the notch at rest, plus live activity slots and the peek strip.
     var closedDisplaySize: CGSize {
-        guard activity != nil else { return closedSize }
+        guard activity != nil else { return handleSize ?? closedSize }
         let side = LiveActivityCenter.sideWidth(closedHeight: closedSize.height)
         let height = closedSize.height + (isPeeking ? Self.peekHeight : 0)
         return CGSize(width: closedSize.width + side * 2, height: height)
+    }
+
+    /// Area of the closed notch that reacts to the pointer; at rest it is the whole band, larger than the handle.
+    var closedInteractionSize: CGSize {
+        activity == nil ? closedSize : closedDisplaySize
     }
 
     var isPeeking: Bool {

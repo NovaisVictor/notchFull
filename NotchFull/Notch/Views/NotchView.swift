@@ -5,7 +5,7 @@ struct NotchView: View {
     let services: AppServices
     let openSettings: () -> Void
 
-    private var topRadius: CGFloat { model.isOpen ? 14 : 6 }
+    private var topRadius: CGFloat { model.isRestingOnHandle ? 0 : model.isOpen ? 14 : 6 }
     private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isPeeking ? 16 : 10 }
 
     var body: some View {
@@ -54,6 +54,15 @@ struct NotchView: View {
     // Closed, the notch stays black to blend with the camera housing; glass applies only when open.
     @ViewBuilder
     private var background: some View {
+        if model.isRestingOnHandle {
+            handle
+        } else {
+            notchBackground
+        }
+    }
+
+    @ViewBuilder
+    private var notchBackground: some View {
         let shape = NotchShape(topRadius: topRadius, bottomRadius: bottomRadius)
         let usesGlass = model.isOpen && style.usesGlass
 
@@ -65,6 +74,16 @@ struct NotchView: View {
                     .transition(.opacity)
             }
         }
+    }
+
+    /// The bar that marks the notch on screens without one.
+    private var handle: some View {
+        let screens = services.screens
+        let height = model.handleSize?.height ?? 0
+        let shape = UnevenRoundedRectangle(bottomLeadingRadius: height / 2, bottomTrailingRadius: height / 2, style: .continuous)
+        let fill: Color = !screens.showsHandle ? .clear : screens.handleIsTransparent ? .white.opacity(0.28) : .black
+
+        return shape.fill(fill)
     }
 
     // Sits in the top band beside the camera housing, which widgets never use.

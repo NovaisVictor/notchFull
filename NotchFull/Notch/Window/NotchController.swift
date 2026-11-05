@@ -12,10 +12,15 @@ final class NotchController {
     private let model: NotchViewModel
     private let window: NotchWindow
 
+    /// Stable identity of the screen this controller serves.
+    let displayUUID: String?
+    private var isHiddenForFullscreen = false
+
     init(screen: NSScreen, services: AppServices, openSettings: @escaping () -> Void) {
-        geometry = NotchGeometry(screen: screen)
+        geometry = NotchGeometry(screen: screen, settings: services.screens)
+        displayUUID = screen.displayUUID
         model = NotchViewModel(
-            closedSize: geometry.closedSize,
+            geometry: geometry,
             layout: services.layout,
             liveActivities: services.liveActivities,
             interaction: services.interaction
@@ -40,7 +45,21 @@ final class NotchController {
         }
     }
 
+    /// Hides the notch while a full-screen app covers this screen, without recreating the window.
+    func setHiddenForFullscreen(_ hidden: Bool) {
+        guard hidden != isHiddenForFullscreen else { return }
+        isHiddenForFullscreen = hidden
+        if hidden {
+            model.close()
+            window.ignoresMouseEvents = true
+            window.orderOut(nil)
+        } else {
+            window.orderFrontRegardless()
+        }
+    }
+
     func handleMouseMoved(to location: CGPoint) {
+        guard !isHiddenForFullscreen else { return }
         if model.isOpen {
             let openRect = geometry.topCenteredRect(size: model.openSize)
                 .insetBy(dx: -Self.openHoverInset.width, dy: -Self.openHoverInset.height)
@@ -55,7 +74,7 @@ final class NotchController {
 
     private func handleClosedMouseMoved(to location: CGPoint) {
         // The display rect includes the peek strip while peeking; the top band is the menu-bar-high row.
-        let displayRect = geometry.topCenteredRect(size: model.closedDisplaySize)
+        let displayRect = geometry.topCenteredRect(size: model.closedInteractionSize)
         let bandHeight = geometry.closedSize.height
         let side = LiveActivityCenter.sideWidth(closedHeight: bandHeight)
         let topBand = CGRect(x: displayRect.minX, y: displayRect.maxY - bandHeight, width: displayRect.width, height: bandHeight)
