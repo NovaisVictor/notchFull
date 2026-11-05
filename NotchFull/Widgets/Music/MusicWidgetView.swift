@@ -26,8 +26,10 @@ struct MusicCardContent: View {
     var body: some View {
         if let track {
             GeometryReader { proxy in
-                let artworkSide = proxy.size.height
-                HStack(spacing: 14) {
+                // Narrow cards shrink the artwork and tighten the controls instead of pushing them out of the card.
+                let artworkSide = min(proxy.size.height, proxy.size.width * 0.42)
+                let isCompact = proxy.size.width - artworkSide < 150
+                HStack(spacing: isCompact ? 10 : 14) {
                     artwork(for: track)
                         .frame(width: artworkSide, height: artworkSide)
 
@@ -41,9 +43,9 @@ struct MusicCardContent: View {
                                 .foregroundStyle(.white.opacity(0.6))
                                 .lineLimit(1)
                         }
-                        controls(isPlaying: track.isPlaying)
+                        controls(isPlaying: track.isPlaying, isCompact: isCompact)
                         if layout == .expanded {
-                            MusicProgressView(track: track)
+                            MusicProgressView(track: track, showsTimes: !isCompact)
                         }
                         if let error {
                             Text(error)
@@ -99,8 +101,8 @@ struct MusicCardContent: View {
         }
     }
 
-    private func controls(isPlaying: Bool) -> some View {
-        HStack(spacing: 20) {
+    private func controls(isPlaying: Bool, isCompact: Bool) -> some View {
+        HStack(spacing: isCompact ? 6 : 20) {
             controlButton("backward.fill", size: 15, command: .previousTrack)
             controlButton(isPlaying ? "pause.fill" : "play.fill", size: 22, command: .playPause)
             controlButton("forward.fill", size: 15, command: .nextTrack)
@@ -123,12 +125,16 @@ struct MusicCardContent: View {
 
 private struct MusicProgressView: View {
     let track: NowPlaying
+    /// Elapsed and remaining times; hidden on narrow cards, where they would squeeze the bar to nothing.
+    var showsTimes = true
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let elapsed = track.elapsed(at: context.date)
             HStack(spacing: 8) {
-                Text(Self.format(elapsed))
+                if showsTimes {
+                    Text(Self.format(elapsed))
+                }
                 Capsule()
                     .fill(.white.opacity(0.2))
                     .overlay(alignment: .leading) {
@@ -139,7 +145,9 @@ private struct MusicProgressView: View {
                         }
                     }
                     .frame(height: 4)
-                Text(remaining(elapsed))
+                if showsTimes {
+                    Text(remaining(elapsed))
+                }
             }
             .font(.system(size: 9, weight: .medium).monospacedDigit())
             .foregroundStyle(.white.opacity(0.5))

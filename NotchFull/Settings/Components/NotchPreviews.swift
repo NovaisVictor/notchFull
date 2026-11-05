@@ -81,7 +81,7 @@ struct OpenNotchPreview<Content: View>: View {
                 .padding(.bottom, 12)
                 .frame(width: size.width, height: size.height)
                 .background {
-                    NotchSurface(style: style, glassLevel: glassLevel, shape: NotchShape(topRadius: 10, bottomRadius: 22))
+                    NotchSurface(style: style, glassLevel: glassLevel, topRadius: 10, bottomRadius: 22, source: .withinWindow)
                 }
                 .environment(\.notchStyle, style)
         }

@@ -9,6 +9,7 @@ final class NookEditorState {
 }
 
 struct WidgetGrid: View {
+    @Environment(\.notchStyle) private var style
     let services: AppServices
     /// When set, the grid is an editor: widgets do not react, a click selects, dragging reorders.
     var editor: NookEditorState?
@@ -25,9 +26,18 @@ struct WidgetGrid: View {
         } else {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: WidgetGridMetrics.spacing) {
-                    ForEach(placements) { placement in
+                    ForEach(Array(placements.enumerated()), id: \.element.id) { index, placement in
                         card(for: placement)
                             .frame(width: metrics.cardWidth(span: placement.span), height: metrics.cardHeight)
+                            .overlay(alignment: .leading) {
+                                // On glass, widgets sit directly on the surface and hairlines separate them.
+                                if style.usesGlass && index > 0 {
+                                    Rectangle()
+                                        .fill(.white.opacity(0.12))
+                                        .frame(width: 1, height: metrics.cardHeight * 0.6)
+                                        .offset(x: -WidgetGridMetrics.spacing / 2 - 0.5)
+                                }
+                            }
                     }
                 }
             }
@@ -135,8 +145,8 @@ struct WidgetCard<Content: View>: View {
     private var background: Color {
         switch style {
         case .classic: Color(white: 0.11)
-        case .smokedGlass: .white.opacity(0.07)
-        case .glass, .clearGlass: .white.opacity(0.1)
+        // On glass there is no card: the widget sits on the surface, as Apple avoids glass-on-glass layering.
+        case .smokedGlass, .glass, .clearGlass: .clear
         }
     }
 }

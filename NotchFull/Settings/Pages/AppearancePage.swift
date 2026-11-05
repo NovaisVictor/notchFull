@@ -144,7 +144,7 @@ private struct StylePreview: View {
                 .padding(.bottom, 12)
                 .frame(width: 190, height: 92)
                 .background {
-                    NotchSurface(style: style, glassLevel: glassLevel, shape: NotchShape(topRadius: 9, bottomRadius: 20))
+                    NotchSurface(style: style, glassLevel: glassLevel, topRadius: 9, bottomRadius: 20, source: .withinWindow)
                 }
                 .environment(\.notchStyle, style)
         }

@@ -96,7 +96,7 @@ struct NotchView: View {
             shape.fill(.black)
                 .opacity(usesGlass ? 0 : 1)
             if usesGlass {
-                NotchSurface(style: style, glassLevel: services.appearance.glassLevel, shape: shape)
+                NotchSurface(style: style, glassLevel: services.appearance.glassLevel, topRadius: topRadius, bottomRadius: bottomRadius)
                     .transition(.opacity)
             }
         }
