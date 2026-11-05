@@ -1,19 +1,31 @@
 import SwiftUI
 
-/// Scrollable page with a large title, used by every settings pane.
+/// Scrollable page with a centered header (icon, title, summary) taken from its pane.
 struct SettingsPage<Content: View>: View {
-    let title: String
+    let pane: SettingsPane
     @ViewBuilder let content: Content
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                Text(title)
-                    .font(.system(size: 26, weight: .bold))
+                VStack(spacing: 8) {
+                    SettingsPaneIcon(pane: pane, size: 56)
+                    Text(pane.title)
+                        .font(.system(size: 24, weight: .bold))
+                    Text(pane.summary)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 460)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
+
                 content
             }
             .padding(28)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
     }
 }

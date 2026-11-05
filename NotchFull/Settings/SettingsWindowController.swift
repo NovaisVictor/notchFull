@@ -23,49 +23,51 @@ final class SettingsWindowController {
     }
 }
 
-private enum SettingsPane: String, CaseIterable, Identifiable {
-    case appearance
-    case nook
-    case liveActivities
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .appearance: "Appearance"
-        case .nook: "Nook"
-        case .liveActivities: "Live Activities"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .appearance: "paintbrush.fill"
-        case .nook: "square.grid.2x2.fill"
-        case .liveActivities: "waveform"
-        }
-    }
-}
-
 private struct SettingsView: View {
     let services: AppServices
-    @State private var pane: SettingsPane = .nook
+    @State private var pane: SettingsPane? = .nook
+    @State private var query = ""
 
     var body: some View {
         NavigationSplitView {
-            List(SettingsPane.allCases, selection: $pane) { pane in
-                Label(pane.title, systemImage: pane.systemImage)
-                    .tag(pane)
+            List(selection: $pane) {
+                ForEach(SettingsPane.groups) { group in
+                    let panes = group.panes.filter { $0.matches(query) }
+                    if !panes.isEmpty {
+                        Section(group.title) {
+                            ForEach(panes) { pane in
+                                Label {
+                                    Text(pane.title)
+                                } icon: {
+                                    SettingsPaneIcon(pane: pane)
+                                }
+                                .tag(pane)
+                            }
+                        }
+                    }
+                }
             }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+            .searchable(text: $query, placement: .sidebar, prompt: "Search settings")
+            .navigationSplitViewColumnWidth(min: 200, ideal: 220)
         } detail: {
-            switch pane {
-            case .appearance: AppearancePage(appearance: services.appearance)
-            case .nook: NookPage(services: services)
-            case .liveActivities: LiveActivitiesPage(services: services)
-            }
+            SettingsDetail(pane: pane ?? .nook, services: services)
         }
         .tint(.purple)
         .preferredColorScheme(.dark)
+    }
+}
+
+private struct SettingsDetail: View {
+    let pane: SettingsPane
+    let services: AppServices
+
+    var body: some View {
+        switch pane {
+        case .appearance: AppearancePage(appearance: services.appearance)
+        case .nook: NookPage(services: services)
+        case let .widget(kind): WidgetSettingsPage(kind: kind, services: services)
+        case .liveActivities: LiveActivitiesPage(services: services)
+        case .about: AboutPage()
+        }
     }
 }

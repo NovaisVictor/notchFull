@@ -56,7 +56,7 @@ final class NotchViewModel {
     }
 
     var openSize: CGSize {
-        WidgetGridMetrics.openSize(for: layout.enabled, closedHeight: closedSize.height)
+        WidgetGridMetrics.openSize(for: layout.placements.map(\.span), closedHeight: closedSize.height)
     }
 
     var currentSize: CGSize {

@@ -5,6 +5,14 @@ feature invente a própria versão.
 
 ## F1 — Shell de ajustes por seções e páginas de widget
 
+> **Status: feito.** A barra lateral tem grupos General, Workspaces (Nook e uma
+> página por widget), Features e NotchFull (About). As páginas têm cabeçalho
+> centralizado, e o preview do Nook é editável (clique seleciona, "×" remove,
+> arrastar sobre outro widget reordena). A busca filtra **páginas** pelo título
+> e por palavras-chave de cada página (`SettingsPane.keywords`); ela não rola
+> até a linha encontrada. Grupos e páginas de Telas, Comportamento e Permissões
+> entram junto com essas features.
+
 ### Objetivo
 
 Os ajustes hoje têm três páginas (Appearance, Nook, Live Activities). As
@@ -49,6 +57,11 @@ features novas precisam de páginas próprias e de ajustes por widget.
 - A busca encontra "Largura" e leva à linha certa.
 
 ## F2 — Largura de widget em células
+
+> **Status: feito.** Célula de 58 pt; cada widget tem largura padrão e faixa
+> permitida (`WidgetKind.defaultSpan`/`spanRange`). O layout é salvo em
+> `widgetLayout.v2` (JSON com tipo e largura); o formato antigo
+> (`widgetLayout`, só a ordem) é migrado na primeira abertura e mantido intacto.
 
 ### Objetivo
 

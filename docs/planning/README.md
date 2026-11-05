@@ -12,7 +12,7 @@ código de terceiros.
 
 | # | Feature | Tamanho | Depende de |
 | --- | --- | --- | --- |
-| [F](00-fundacoes.md) | Fundações: shell de ajustes, células de widget, satélite flutuante, central de permissões | G | — |
+| [F](00-fundacoes.md) | Fundações: shell de ajustes, células de widget, satélite flutuante, central de permissões (F1 e F2 feitas) | G | — |
 | [1](01-telas.md) | Telas: em quais telas aparece, tela cheia, manipulador em telas sem notch | M | F1 |
 | [2](02-comportamento.md) | Comportamento: abertura, resposta tátil, digitação e gestos | M | F1 |
 | [3](03-pulse.md) | Pulse: dados do sistema (CPU, RAM, GPU, disco, bateria, rede) | M | F1, F2 |

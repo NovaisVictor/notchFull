@@ -4,7 +4,7 @@ struct AppearancePage: View {
     @Bindable var appearance: AppearanceSettings
 
     var body: some View {
-        SettingsPage(title: "Appearance") {
+        SettingsPage(pane: .appearance) {
             SettingsSection(
                 title: "Notch style",
                 info: "Applies to the open notch. Closed, it stays black to blend with the camera housing."

@@ -31,11 +31,30 @@ enum WidgetKind: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Width in grid columns.
-    var span: Int {
+    /// Width in grid cells when the widget is added.
+    var defaultSpan: Int {
         switch self {
-        case .music, .calendar, .todo, .agents: 2
-        case .clock: 1
+        case .music, .calendar, .todo, .agents: 5
+        case .clock: 3
         }
     }
+
+    /// Widths the widget's content can lay out in.
+    var spanRange: ClosedRange<Int> {
+        switch self {
+        case .music: 4...7
+        case .calendar: 4...8
+        case .todo: 3...8
+        case .clock: 2...4
+        case .agents: 4...8
+        }
+    }
+}
+
+/// A widget in the Nook and the width the user chose for it.
+struct WidgetPlacement: Equatable, Identifiable {
+    let kind: WidgetKind
+    var span: Int
+
+    var id: WidgetKind { kind }
 }

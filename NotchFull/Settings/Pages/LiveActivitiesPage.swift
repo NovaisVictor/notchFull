@@ -7,7 +7,7 @@ struct LiveActivitiesPage: View {
     let services: AppServices
 
     var body: some View {
-        SettingsPage(title: "Live Activities") {
+        SettingsPage(pane: .liveActivities) {
             MediaActivitySection(settings: services.mediaSettings, spectrum: services.spectrum)
             BatteryActivitySection(settings: services.activitySettings, center: services.liveActivities)
             BluetoothActivitySection(settings: services.activitySettings, monitor: services.bluetooth, center: services.liveActivities)
