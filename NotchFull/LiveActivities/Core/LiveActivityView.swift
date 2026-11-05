@@ -9,7 +9,7 @@ struct LiveActivityView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ClosedNotchSlots(closedSize: closedSize) {
+            ClosedNotchSlots(closedSize: closedSize, sideWidth: activity.sideWidth(closedHeight: closedSize.height)) {
                 leading
             } trailing: {
                 trailing
@@ -19,7 +19,23 @@ struct LiveActivityView: View {
                     .frame(height: NotchViewModel.peekHeight, alignment: .top)
                     .padding(.horizontal, 14)
                     .transition(.opacity.combined(with: .move(edge: .top)))
+            } else if activity.heightBelowNotch > 0 {
+                below
+                    .frame(height: activity.heightBelowNotch, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
+        }
+    }
+
+    /// Content an activity draws below the notch without hovering, like the classic volume HUD.
+    @ViewBuilder
+    private var below: some View {
+        switch activity {
+        case let .volume(state, .classic):
+            VolumeClassicView(state: state)
+        default:
+            EmptyView()
         }
     }
 
@@ -62,6 +78,10 @@ struct LiveActivityView: View {
             UpcomingEventLeadingView()
         case .pomodoro:
             PomodoroActivityLeadingView(timer: services.pomodoro)
+        case let .volume(state, style):
+            if style == .embedded {
+                VolumeEmbeddedLeadingView(state: state)
+            }
         }
     }
 
@@ -88,6 +108,10 @@ struct LiveActivityView: View {
             UpcomingEventTrailingView(event: event)
         case .pomodoro:
             PomodoroActivityTrailingView(timer: services.pomodoro)
+        case let .volume(state, style):
+            if style == .embedded {
+                VolumeEmbeddedTrailingView(state: state)
+            }
         }
     }
 }
@@ -95,11 +119,13 @@ struct LiveActivityView: View {
 /// Lays out a leading and trailing slot around the camera housing; shared by the notch and settings previews.
 struct ClosedNotchSlots<Leading: View, Trailing: View>: View {
     let closedSize: CGSize
+    /// Width of each slot; `nil` uses the standard square slot.
+    var sideWidth: CGFloat?
     @ViewBuilder let leading: Leading
     @ViewBuilder let trailing: Trailing
 
     var body: some View {
-        let side = LiveActivityCenter.sideWidth(closedHeight: closedSize.height)
+        let side = sideWidth ?? LiveActivityCenter.sideWidth(closedHeight: closedSize.height)
 
         HStack(spacing: 0) {
             leading

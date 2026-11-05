@@ -26,6 +26,8 @@ final class AppServices {
     let bluetooth = BluetoothMonitor()
     let downloads = DownloadsMonitor()
     let liveActivities: LiveActivityCenter
+    let hudSettings = HUDSettings()
+    let volumeHUD: VolumeHUD
     private var upcomingEvents: UpcomingEventNotifier?
 
     init() {
@@ -41,9 +43,23 @@ final class AppServices {
             pomodoro: pomodoro,
             pomodoroSettings: pomodoroSettings
         )
+        volumeHUD = VolumeHUD(settings: hudSettings, liveActivities: liveActivities)
         routeEventsToLiveActivities()
         observeAudioDemand()
         observeRainDemand()
+        observeVolumeKeyDemand()
+    }
+
+    /// Reads the volume keys only while the user wants the notch HUD and Accessibility allows it; turning the
+    /// option off removes the tap at once, so the keys go back to macOS without a restart.
+    private func observeVolumeKeyDemand() {
+        let intercepts = withObservationTracking {
+            hudSettings.replacesVolume && volumeHUD.keyTap.isTrusted
+        } onChange: { [weak self] in
+            Task { @MainActor in self?.observeVolumeKeyDemand() }
+        }
+        // Applied outside the tracking scope so the tap's own state changes do not re-trigger this observation.
+        volumeHUD.setIntercepting(intercepts)
     }
 
     /// Rain plays only during a running break, when the user turned it on.

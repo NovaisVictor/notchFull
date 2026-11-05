@@ -8,7 +8,7 @@ struct NotchView: View {
     let onClickToOpen: () -> Void
 
     private var topRadius: CGFloat { model.isRestingOnHandle ? 0 : model.isOpen ? 14 : 6 }
-    private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isPeeking ? 16 : 10 }
+    private var bottomRadius: CGFloat { model.isOpen ? 28 : model.isExtendedBelow ? 16 : 10 }
 
     var body: some View {
         // The shape is widened by the ears so the body under the menu bar matches the physical notch.

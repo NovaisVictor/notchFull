@@ -2,7 +2,7 @@ import CoreGraphics
 import Observation
 
 /// Decides which live activity the closed notch shows, in priority order:
-/// a short-lived event (charger, Bluetooth, reminder), then an ongoing download, the Pomodoro, then music.
+/// a short-lived event (charger, Bluetooth, reminder, volume HUD), then an ongoing download, the Pomodoro, then music.
 @MainActor
 @Observable
 final class LiveActivityCenter {
@@ -14,6 +14,24 @@ final class LiveActivityCenter {
         case downloadFinished(fileName: String)
         case upcomingEvent(UpcomingEvent)
         case pomodoro
+        case volume(VolumeState, style: HUDStyle)
+
+        /// Width added on each side of the notch while this activity is shown.
+        func sideWidth(closedHeight: CGFloat) -> CGFloat {
+            let base = LiveActivityCenter.sideWidth(closedHeight: closedHeight)
+            switch self {
+            case .volume(_, .embedded): return base + VolumeHUDMetrics.embeddedExtraWidth
+            default: return base
+            }
+        }
+
+        /// Height of the content this activity draws below the closed notch, outside any peek.
+        var heightBelowNotch: CGFloat {
+            switch self {
+            case .volume(_, .classic): VolumeHUDMetrics.classicHeight
+            default: 0
+            }
+        }
     }
 
     static let eventDuration: Duration = .seconds(3.5)
@@ -67,7 +85,7 @@ final class LiveActivityCenter {
     }
 
     /// Width added on each side of the notch while an activity is shown: a square slot plus breathing room.
-    static func sideWidth(closedHeight: CGFloat) -> CGFloat {
+    nonisolated static func sideWidth(closedHeight: CGFloat) -> CGFloat {
         closedHeight + 14
     }
 }

@@ -63,10 +63,15 @@ final class NotchViewModel {
 
     /// What the closed notch draws: the handle or the notch at rest, plus live activity slots and the peek strip.
     var closedDisplaySize: CGSize {
-        guard activity != nil else { return handleSize ?? closedSize }
-        let side = LiveActivityCenter.sideWidth(closedHeight: closedSize.height)
-        let height = closedSize.height + (isPeeking ? Self.peekHeight : 0)
+        guard let activity else { return handleSize ?? closedSize }
+        let side = activity.sideWidth(closedHeight: closedSize.height)
+        let height = closedSize.height + (isPeeking ? Self.peekHeight : activity.heightBelowNotch)
         return CGSize(width: closedSize.width + side * 2, height: height)
+    }
+
+    /// The closed notch reaches below the camera band: the peek strip or an activity drawn underneath.
+    var isExtendedBelow: Bool {
+        isPeeking || (activity?.heightBelowNotch ?? 0) > 0
     }
 
     /// Area of the closed notch that reacts to the pointer; at rest it is the whole band, larger than the handle.

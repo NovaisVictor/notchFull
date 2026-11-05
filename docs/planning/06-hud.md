@@ -1,5 +1,19 @@
 # 6 — HUD de volume e brilho
 
+> **Status: feito (só volume).** Sem APIs privadas: as teclas de volume, mudo
+> e ⌥⇧ (passos de 1/64) são lidas por um event tap de sessão (`MediaKeyTap`) e
+> aplicadas no dispositivo de saída padrão via Core Audio
+> (`VirtualMainVolume` e `Mute`); só os eventos tratados são consumidos. Sem
+> Acessibilidade nada é consumido; a permissão é conferida de novo sempre que o
+> app fica ativo. ⌥ sozinho + tecla segue para o sistema (abre os ajustes de
+> Som). Dispositivos sem volume ajustável por apps (alguns HDMI e DACs) deixam
+> a tecla para o sistema, e a página de ajustes mostra o motivo. O HUD é o
+> evento `.volume` da `LiveActivityCenter` (1,5 s, reapresentado a cada tecla),
+> nos estilos Embutido (laterais mais largas) e Clássico (faixa abaixo do
+> notch, mesmo mecanismo de altura do peek). **Brilho pendente**: as teclas de
+> brilho continuam com o HUD do sistema até a decisão sobre a API privada
+> DisplayServices. O modo "ouvir sem substituir" não foi feito.
+
 ## Objetivo
 
 Substituir o indicador do sistema de volume e brilho por um indicador no notch.

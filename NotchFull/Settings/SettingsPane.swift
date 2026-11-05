@@ -9,6 +9,7 @@ enum SettingsPane: Hashable, Identifiable {
     case nook
     case widget(WidgetKind)
     case liveActivities
+    case hud
     case about
 
     struct Group: Identifiable {
@@ -20,7 +21,7 @@ enum SettingsPane: Hashable, Identifiable {
     static let groups: [Group] = [
         Group(title: "General", panes: [.appearance, .screens, .behavior]),
         Group(title: "Workspaces", panes: [.nook] + WidgetKind.allCases.map(SettingsPane.widget)),
-        Group(title: "Features", panes: [.liveActivities]),
+        Group(title: "Features", panes: [.liveActivities, .hud]),
         Group(title: "NotchFull", panes: [.about]),
     ]
 
@@ -32,6 +33,7 @@ enum SettingsPane: Hashable, Identifiable {
         case .nook: "nook"
         case let .widget(kind): "widget.\(kind.rawValue)"
         case .liveActivities: "liveActivities"
+        case .hud: "hud"
         case .about: "about"
         }
     }
@@ -44,6 +46,7 @@ enum SettingsPane: Hashable, Identifiable {
         case .nook: "Nook"
         case let .widget(kind): kind.displayName
         case .liveActivities: "Live Activities"
+        case .hud: "HUD"
         case .about: "About"
         }
     }
@@ -56,6 +59,7 @@ enum SettingsPane: Hashable, Identifiable {
         case .nook: "square.grid.2x2.fill"
         case let .widget(kind): kind.systemImage
         case .liveActivities: "waveform"
+        case .hud: "speaker.wave.2.fill"
         case .about: "info"
         }
     }
@@ -77,6 +81,7 @@ enum SettingsPane: Hashable, Identifiable {
             case .agents: .purple
             }
         case .liveActivities: .purple
+        case .hud: .mint
         case .about: .green
         }
     }
@@ -89,6 +94,7 @@ enum SettingsPane: Hashable, Identifiable {
         case .nook: "The widgets in the open notch, their order and their width."
         case let .widget(kind): "Options for the \(kind.displayName) widget."
         case .liveActivities: "What the closed notch shows while music plays and when things happen on your Mac."
+        case .hud: "Shows the volume in the notch instead of the system indicator."
         case .about: "Version, updates and source code."
         }
     }
@@ -110,6 +116,9 @@ enum SettingsPane: Hashable, Identifiable {
         case .liveActivities:
             ["Media", "Effect", "Audio Spectrograph", "Waves", "Vibrating Circle", "GIF", "Album corner radius", "Color effects",
              "Battery", "Low battery", "Charging", "AirPods", "Bluetooth", "Downloads", "Upcoming events", "Calendar reminder"]
+        case .hud:
+            ["Volume", "Mute", "Replace the volume HUD", "Indicator", "Media keys", "Accessibility", "Embedded", "Classic",
+             "Brightness"]
         case .about:
             ["Version", "Updates", "GitHub", "Source code"]
         }
