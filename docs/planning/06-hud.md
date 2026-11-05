@@ -104,5 +104,6 @@ Seção "Indicador ao vivo" com dois estilos em cards:
 
 ## Perguntas em aberto
 
-- **Brilho**: aceitar a API privada DisplayServices, ou substituir só o volume?
+- ~~**Brilho**: aceitar a API privada DisplayServices?~~ Decidido: sim, com
+  carga dinâmica e fallback para o HUD do sistema.
 - Vale ter o modo "ouvir sem substituir" como padrão sem permissão?

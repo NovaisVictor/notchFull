@@ -44,12 +44,12 @@ implementação, testes e revisão.
 - **Idioma da interface**: hoje a UI está em inglês e as referências estão em
   português. Localizar (pt-BR + en) antes de multiplicar telas de ajuste evita
   retrabalho.
-- **APIs privadas**: a regra atual é não usar. O HUD de brilho e o "manter acima
-  da tela cheia" dependem delas. Cada plano indica a alternativa pública e o que
-  se perde.
-- **Dependências de terceiros**: notas com destaque de sintaxe e o som de chuva
-  do Pomodoro exigem uma biblioteca ou um asset de áudio. Cada um precisa de
-  aprovação explícita.
+- **APIs privadas**: evitadas por padrão; cada exceção é decisão explícita do
+  usuário e fica isolada, com carga dinâmica e fallback. Exceção aprovada: o
+  brilho do HUD (DisplayServices). O "manter acima da tela cheia" via SkyLight
+  continua fora.
+- **Dependências de terceiros**: nenhuma até agora; o destaque de sintaxe das
+  notas é próprio e a chuva do Pomodoro é sintetizada.
 
 ## Pendências já conhecidas (fora destes planos)
 
