@@ -23,7 +23,7 @@ enum VolumeController {
     }
 
     enum Outcome {
-        case applied(VolumeState)
+        case applied(HUDState)
         /// The device cannot do this change through Core Audio, so the key must go to macOS untouched.
         case unsupported(reason: String)
     }
@@ -60,7 +60,7 @@ enum VolumeController {
             isMuted.toggle()
             try write(device, muteAddress, UInt32(isMuted ? 1 : 0), operation: isMuted ? "mute the output" : "unmute the output")
         }
-        return .applied(VolumeState(level: level, isMuted: isMuted, deviceName: deviceName))
+        return .applied(.volume(level: level, isMuted: isMuted, deviceName: deviceName))
     }
 
     // The volume keys act on the default output (where apps play), not on the alerts device.

@@ -69,7 +69,7 @@ private struct SettingsDetail: View {
         case .nook: NookPage(services: services)
         case let .widget(kind): WidgetSettingsPage(kind: kind, services: services)
         case .liveActivities: LiveActivitiesPage(services: services)
-        case .hud: HUDPage(settings: services.hudSettings, hud: services.volumeHUD)
+        case .hud: HUDPage(settings: services.hudSettings, hud: services.hud)
         case .about: AboutPage()
         }
     }

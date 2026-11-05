@@ -1,19 +1,19 @@
 import SwiftUI
 
-enum VolumeHUDMetrics {
+enum HUDMetrics {
     /// Extra width on each side in the embedded style, so the device name and the number fit beside the camera.
     static let embeddedExtraWidth: CGFloat = 58
     /// Height of the row the classic style adds below the notch.
     static let classicHeight: CGFloat = 30
 }
 
-/// Embedded style, left of the camera: speaker icon and "Volume" or the output device's name.
-struct VolumeEmbeddedLeadingView: View {
-    let state: VolumeState
+/// Embedded style, left of the camera: the icon and "Volume", the output device's name or "Brightness".
+struct HUDEmbeddedLeadingView: View {
+    let state: HUDState
 
     var body: some View {
         HStack(spacing: 6) {
-            VolumeIcon(state: state)
+            HUDIcon(state: state)
             Text(state.title)
                 .font(.system(size: 12, weight: .semibold))
                 .lineLimit(1)
@@ -26,14 +26,14 @@ struct VolumeEmbeddedLeadingView: View {
 }
 
 /// Embedded style, right of the camera: a mini bar and the level as a number.
-struct VolumeEmbeddedTrailingView: View {
-    let state: VolumeState
+struct HUDEmbeddedTrailingView: View {
+    let state: HUDState
 
     var body: some View {
         HStack(spacing: 7) {
-            VolumeBar(level: state.shownLevel, height: 4)
+            HUDBar(level: state.shownLevel, height: 4)
                 .frame(width: 40)
-            Text("\(VolumeHUDFormat.percent(state.shownLevel))")
+            Text("\(HUDFormat.percent(state.shownLevel))")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .contentTransition(.numericText())
@@ -46,14 +46,14 @@ struct VolumeEmbeddedTrailingView: View {
 }
 
 /// Classic style, below the notch: icon, a horizontal bar and the percentage.
-struct VolumeClassicView: View {
-    let state: VolumeState
+struct HUDClassicView: View {
+    let state: HUDState
 
     var body: some View {
         HStack(spacing: 10) {
-            VolumeIcon(state: state)
-            VolumeBar(level: state.shownLevel, height: 6)
-            Text("\(VolumeHUDFormat.percent(state.shownLevel))%")
+            HUDIcon(state: state)
+            HUDBar(level: state.shownLevel, height: 6)
+            Text("\(HUDFormat.percent(state.shownLevel))%")
                 .font(.system(size: 12, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .contentTransition(.numericText())
@@ -63,19 +63,19 @@ struct VolumeClassicView: View {
     }
 }
 
-private struct VolumeIcon: View {
-    let state: VolumeState
+private struct HUDIcon: View {
+    let state: HUDState
 
     var body: some View {
         Image(systemName: state.systemImage)
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(state.isMuted ? .white.opacity(0.55) : .white)
+            .foregroundStyle(state.isDimmed ? .white.opacity(0.55) : .white)
             .contentTransition(.symbolEffect(.replace))
             .frame(width: 20, alignment: .leading)
     }
 }
 
-private struct VolumeBar: View {
+private struct HUDBar: View {
     let level: Double
     let height: CGFloat
 
@@ -93,7 +93,7 @@ private struct VolumeBar: View {
     }
 }
 
-enum VolumeHUDFormat {
+enum HUDFormat {
     static func percent(_ level: Double) -> Int {
         Int((level.clamped(to: 0...1) * 100).rounded())
     }

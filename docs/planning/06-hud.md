@@ -1,18 +1,26 @@
 # 6 — HUD de volume e brilho
 
-> **Status: feito (só volume).** Sem APIs privadas: as teclas de volume, mudo
-> e ⌥⇧ (passos de 1/64) são lidas por um event tap de sessão (`MediaKeyTap`) e
-> aplicadas no dispositivo de saída padrão via Core Audio
-> (`VirtualMainVolume` e `Mute`); só os eventos tratados são consumidos. Sem
+> **Status: feito (volume e brilho).** As teclas de volume, mudo, brilho e ⌥⇧
+> (passos de 1/64) são lidas por um event tap de sessão (`MediaKeyTap`), que
+> roda enquanto qualquer uma das duas opções estiver ligada; só os eventos
+> tratados são consumidos e cada tecla confere a própria opção. O volume é
+> aplicado no dispositivo de saída padrão via Core Audio (`VirtualMainVolume` e
+> `Mute`). O brilho usa a **API privada DisplayServices**
+> (`DisplayServicesGetBrightness/SetBrightness`), isolada no
+> `BrightnessController` e carregada dinamicamente (`dlopen`/`dlsym`) só quando
+> é preciso; vale só para a tela integrada (achada com `CGGetOnlineDisplayList`
+> + `CGDisplayIsBuiltin`). Fallback: se o framework ou um símbolo faltar, uma
+> chamada falhar ou não houver tela integrada ligada (tampa fechada, Mac de
+> mesa), a tecla de brilho segue para o sistema e a página de ajustes mostra o
+> motivo. Brilho de monitor externo (DDC) fica fora do escopo. Sem
 > Acessibilidade nada é consumido; a permissão é conferida de novo sempre que o
 > app fica ativo. ⌥ sozinho + tecla segue para o sistema (abre os ajustes de
-> Som). Dispositivos sem volume ajustável por apps (alguns HDMI e DACs) deixam
-> a tecla para o sistema, e a página de ajustes mostra o motivo. O HUD é o
-> evento `.volume` da `LiveActivityCenter` (1,5 s, reapresentado a cada tecla),
-> nos estilos Embutido (laterais mais largas) e Clássico (faixa abaixo do
-> notch, mesmo mecanismo de altura do peek). **Brilho pendente**: as teclas de
-> brilho continuam com o HUD do sistema até a decisão sobre a API privada
-> DisplayServices. O modo "ouvir sem substituir" não foi feito.
+> Som ou de Telas). Dispositivos sem volume ajustável por apps (alguns HDMI e
+> DACs) deixam a tecla para o sistema, e a página de ajustes mostra o motivo. O
+> HUD é o evento `.hud` da `LiveActivityCenter` (um `HUDState` com o tipo
+> volume ou brilho; 1,5 s, reapresentado a cada tecla), nos estilos Embutido
+> (laterais mais largas) e Clássico (faixa abaixo do notch, mesmo mecanismo de
+> altura do peek). O modo "ouvir sem substituir" não foi feito.
 
 ## Objetivo
 

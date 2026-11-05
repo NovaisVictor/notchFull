@@ -5,23 +5,25 @@ import IOKit.hidsystem
 import Observation
 import os
 
-/// A volume key press read from the keyboard's media row.
+/// A volume or brightness key press read from the keyboard's media row.
 struct MediaKeyPress {
     enum Key {
         case volumeUp
         case volumeDown
         case mute
+        case brightnessUp
+        case brightnessDown
 
-        /// Holding mute does not toggle it again and again; holding a volume key keeps stepping.
+        /// Holding mute does not toggle it again and again; holding a volume or brightness key keeps stepping.
         var repeats: Bool { self != .mute }
     }
 
     let key: Key
-    /// Option and Shift held: macOS moves the volume in quarter steps.
+    /// Option and Shift held: macOS moves the level in quarter steps.
     let isFine: Bool
 }
 
-/// Owns the event tap that reads the volume keys before macOS does, so a handled key never reaches the system HUD.
+/// Owns the event tap that reads the volume and brightness keys before macOS does, so a handled key never reaches the system HUD.
 /// The tap needs the Accessibility permission; without it nothing is created and the keys work as before.
 @MainActor
 @Observable
@@ -82,13 +84,13 @@ final class MediaKeyTap {
             callback: Self.callback,
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
-            lastError = "Could not listen to the volume keys. Remove NotchFull from Accessibility, add it again and retry."
+            lastError = "Could not listen to the volume and brightness keys. Remove NotchFull from Accessibility, add it again and retry."
             Self.log.error("CGEvent.tapCreate returned nil while trusted")
             return
         }
         guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, port, 0) else {
             CFMachPortInvalidate(port)
-            lastError = "Could not attach the volume key listener to the main run loop."
+            lastError = "Could not attach the media key listener to the main run loop."
             Self.log.error("CFMachPortCreateRunLoopSource returned nil")
             return
         }
@@ -188,6 +190,8 @@ final class MediaKeyTap {
         case NX_KEYTYPE_SOUND_UP: key = .volumeUp
         case NX_KEYTYPE_SOUND_DOWN: key = .volumeDown
         case NX_KEYTYPE_MUTE: key = .mute
+        case NX_KEYTYPE_BRIGHTNESS_UP: key = .brightnessUp
+        case NX_KEYTYPE_BRIGHTNESS_DOWN: key = .brightnessDown
         default: return false
         }
 
@@ -199,7 +203,8 @@ final class MediaKeyTap {
         }
 
         let flags = event.flags
-        // Option alone with a volume key opens Sound settings in macOS; leave that shortcut to the system.
+        // Option alone with a volume or brightness key opens Sound or Displays settings in macOS; leave that
+        // shortcut to the system.
         if flags.contains(.maskAlternate), !flags.contains(.maskShift) {
             consumedKeyCodes.remove(keyCode)
             return false

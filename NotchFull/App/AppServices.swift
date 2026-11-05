@@ -30,7 +30,7 @@ final class AppServices {
     let downloads = DownloadsMonitor()
     let liveActivities: LiveActivityCenter
     let hudSettings = HUDSettings()
-    let volumeHUD: VolumeHUD
+    let hud: NotchHUD
     private var upcomingEvents: UpcomingEventNotifier?
 
     init() {
@@ -48,23 +48,23 @@ final class AppServices {
             pomodoro: pomodoro,
             pomodoroSettings: pomodoroSettings
         )
-        volumeHUD = VolumeHUD(settings: hudSettings, liveActivities: liveActivities)
+        hud = NotchHUD(settings: hudSettings, liveActivities: liveActivities)
         routeEventsToLiveActivities()
         observeAudioDemand()
         observeRainDemand()
-        observeVolumeKeyDemand()
+        observeMediaKeyDemand()
     }
 
-    /// Reads the volume keys only while the user wants the notch HUD and Accessibility allows it; turning the
-    /// option off removes the tap at once, so the keys go back to macOS without a restart.
-    private func observeVolumeKeyDemand() {
+    /// Reads the media keys only while the user wants the notch HUD for volume or brightness and Accessibility
+    /// allows it; turning both options off removes the tap at once, so the keys go back to macOS without a restart.
+    private func observeMediaKeyDemand() {
         let intercepts = withObservationTracking {
-            hudSettings.replacesVolume && volumeHUD.keyTap.isTrusted
+            hudSettings.replacesAnyKey && hud.keyTap.isTrusted
         } onChange: { [weak self] in
-            Task { @MainActor in self?.observeVolumeKeyDemand() }
+            Task { @MainActor in self?.observeMediaKeyDemand() }
         }
         // Applied outside the tracking scope so the tap's own state changes do not re-trigger this observation.
-        volumeHUD.setIntercepting(intercepts)
+        hud.setIntercepting(intercepts)
     }
 
     /// Rain plays only during a running break, when the user turned it on.

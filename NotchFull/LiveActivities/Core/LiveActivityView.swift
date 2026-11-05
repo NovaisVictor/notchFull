@@ -28,12 +28,12 @@ struct LiveActivityView: View {
         }
     }
 
-    /// Content an activity draws below the notch without hovering, like the classic volume HUD.
+    /// Content an activity draws below the notch without hovering, like the classic HUD.
     @ViewBuilder
     private var below: some View {
         switch activity {
-        case let .volume(state, .classic):
-            VolumeClassicView(state: state)
+        case let .hud(state, .classic):
+            HUDClassicView(state: state)
         default:
             EmptyView()
         }
@@ -78,9 +78,9 @@ struct LiveActivityView: View {
             UpcomingEventLeadingView()
         case .pomodoro:
             PomodoroActivityLeadingView(timer: services.pomodoro)
-        case let .volume(state, style):
+        case let .hud(state, style):
             if style == .embedded {
-                VolumeEmbeddedLeadingView(state: state)
+                HUDEmbeddedLeadingView(state: state)
             }
         }
     }
@@ -108,9 +108,9 @@ struct LiveActivityView: View {
             UpcomingEventTrailingView(event: event)
         case .pomodoro:
             PomodoroActivityTrailingView(timer: services.pomodoro)
-        case let .volume(state, style):
+        case let .hud(state, style):
             if style == .embedded {
-                VolumeEmbeddedTrailingView(state: state)
+                HUDEmbeddedTrailingView(state: state)
             }
         }
     }

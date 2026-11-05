@@ -18,7 +18,7 @@ código de terceiros.
 | [3](03-pulse.md) | Pulse: dados do sistema (CPU, RAM, GPU, disco, bateria, rede) — feito | M | F1, F2 |
 | [4](04-notas.md) | Notas rápidas: texto rico, modo código, várias notas — feito | G | F1, F2 |
 | [5](05-tarefas.md) | Tarefas: redesenho do widget, excluir, duração de foco, arquivamento | M | F1, F2 |
-| [6](06-hud.md) | HUD de volume e brilho — volume feito; brilho pendente (API privada) | G | F1, F4 |
+| [6](06-hud.md) | HUD de volume e brilho — feito (brilho via API privada DisplayServices, com carga dinâmica e fallback) | G | F1, F4 |
 | [7](07-pomodoro.md) | Pomodoro e o círculo flutuante (satélite) — feito | G | F1, F2, F3 |
 
 Tamanho: P (até 1 dia), M (2–4 dias), G (1 semana ou mais), considerando
