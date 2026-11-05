@@ -1,5 +1,16 @@
 # 3 — Pulse (dados do sistema)
 
+> **Status: feito.** Decisões: estilos Anéis e Gráficos; a dica de hover é um
+> balão desenhado dentro do widget (a dica nativa do macOS não aparece de forma
+> confiável no painel do notch). A RAM mostra uso e total, sem a pressão de
+> memória. Além de `onAppear`/`onDisappear`, o widget acompanha a visibilidade
+> da janela, porque a janela de ajustes fechada continua viva e não dispara
+> `onDisappear`. A primeira leitura de CPU e rede sai 0,5 s depois de abrir, sem
+> esperar o intervalo inteiro. Os contadores de 32 bits (ticks de CPU e bytes de
+> `if_data`) são subtraídos com aritmética circular, então a virada do contador
+> não gera picos. Leitores sem testes automatizados: o projeto ainda não tem
+> alvo de testes.
+
 ## Objetivo
 
 Widget que mostra o uso do Mac: CPU, RAM, GPU, disco, bateria e rede.

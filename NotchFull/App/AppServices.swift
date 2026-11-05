@@ -21,6 +21,8 @@ final class AppServices {
     let activitySettings = ActivitySettings()
     let spectrum = AudioSpectrumSource()
     let battery = BatteryMonitor()
+    let pulseSettings = PulseSettings()
+    let pulse: PulseSampler
     let bluetooth = BluetoothMonitor()
     let downloads = DownloadsMonitor()
     let liveActivities: LiveActivityCenter
@@ -30,6 +32,7 @@ final class AppServices {
         todos = TodoStore(settings: todoSettings)
         pomodoro = PomodoroTimer(settings: pomodoroSettings)
         satellites = SatelliteCenter(timer: pomodoro, settings: pomodoroSettings)
+        pulse = PulseSampler(settings: pulseSettings, battery: battery)
         liveActivities = LiveActivityCenter(
             nowPlaying: nowPlaying,
             mediaSettings: mediaSettings,

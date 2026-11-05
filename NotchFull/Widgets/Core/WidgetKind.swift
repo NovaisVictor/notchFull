@@ -5,6 +5,7 @@ enum WidgetKind: String, CaseIterable, Identifiable {
     case calendar
     case todo
     case pomodoro
+    case pulse
     case clock
     case agents
 
@@ -18,6 +19,7 @@ enum WidgetKind: String, CaseIterable, Identifiable {
         case .calendar: "Calendar"
         case .todo: "To-dos"
         case .pomodoro: "Pomodoro"
+        case .pulse: "Pulse"
         case .clock: "Clock"
         case .agents: "Agents"
         }
@@ -29,6 +31,7 @@ enum WidgetKind: String, CaseIterable, Identifiable {
         case .calendar: "calendar"
         case .todo: "checklist"
         case .pomodoro: "timer"
+        case .pulse: "waveform.path.ecg"
         case .clock: "clock"
         case .agents: "sparkles"
         }
@@ -39,6 +42,7 @@ enum WidgetKind: String, CaseIterable, Identifiable {
         switch self {
         case .music, .calendar, .todo, .agents: 5
         case .pomodoro: 6
+        case .pulse: 4
         case .clock: 3
         }
     }
@@ -50,6 +54,7 @@ enum WidgetKind: String, CaseIterable, Identifiable {
         case .calendar: 4...8
         case .todo: 3...8
         case .pomodoro: 5...8
+        case .pulse: 3...6
         case .clock: 2...4
         case .agents: 4...8
         }

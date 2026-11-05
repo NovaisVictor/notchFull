@@ -66,7 +66,7 @@ struct WidgetSettingsPanel: View {
     }
 
     private var hasOptions: Bool {
-        kind == .music || kind == .todo || kind == .pomodoro
+        kind == .music || kind == .todo || kind == .pomodoro || kind == .pulse
     }
 
     @ViewBuilder
@@ -79,6 +79,8 @@ struct WidgetSettingsPanel: View {
             TodoOptions(settings: services.todoSettings, store: services.todos)
         case .pomodoro:
             PomodoroOptions(settings: services.pomodoroSettings, rain: services.rain)
+        case .pulse:
+            PulseOptions(settings: services.pulseSettings, sampler: services.pulse)
         case .calendar, .clock, .agents:
             EmptyView()
         }
@@ -130,6 +132,85 @@ private struct PomodoroOptions: View {
     private func minutesStepper(_ value: Binding<Int>, range: ClosedRange<Int>) -> some View {
         Stepper(value: value, in: range) {
             Text("\(value.wrappedValue) min").monospacedDigit()
+        }
+    }
+}
+
+private struct PulseOptions: View {
+    @Bindable var settings: PulseSettings
+    let sampler: PulseSampler
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            InfoLabel(title: "Style", info: "How the metrics look in the open notch.")
+            HStack(spacing: 16) {
+                ForEach(PulseStyle.allCases) { style in
+                    OptionCard(
+                        title: style.displayName,
+                        subtitle: style.summary,
+                        isSelected: settings.style == style,
+                        previewHeight: 130
+                    ) {
+                        settings.style = style
+                    } preview: {
+                        PulseContent(
+                            metrics: PulseMetric.allCases,
+                            readings: PreviewSamples.pulseReadings,
+                            history: PreviewSamples.pulseHistory,
+                            style: style,
+                            explainsOnHover: false
+                        )
+                        .foregroundStyle(.white)
+                        .padding(12)
+                        .frame(width: WidgetGridMetrics.cardWidth(span: WidgetKind.pulse.defaultSpan), height: 120)
+                        .background(Color(white: 0.11), in: .rect(cornerRadius: 16, style: .continuous))
+                        .allowsHitTesting(false)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        Divider()
+
+        ForEach(PulseMetric.allCases) { metric in
+            SettingsRow(title: metric.displayName, info: info(for: metric)) {
+                Toggle("", isOn: Binding(
+                    get: { settings.isEnabled(metric) },
+                    set: { settings.setEnabled(metric, $0) }
+                ))
+                .labelsHidden()
+                .toggleStyle(.switch)
+            }
+        }
+        SettingsRow(title: "Explain on hover", info: "Hovering a metric shows its detail, such as \"RAM: 12.4 of 16 GB\".") {
+            Toggle("", isOn: $settings.explainsOnHover).labelsHidden().toggleStyle(.switch)
+        }
+        SettingsRow(
+            title: "Update interval",
+            info: "Metrics are read only while the widget is on screen.",
+            showsDivider: sampler.lastError != nil
+        ) {
+            Picker("", selection: $settings.interval) {
+                ForEach(PulseSettings.intervalOptions, id: \.self) { Text("\($0) s").tag($0) }
+            }
+            .labelsHidden()
+            .pickerStyle(.segmented)
+            .frame(width: 140)
+        }
+        if let error = sampler.lastError {
+            Label(error, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
+                .padding(.top, 8)
+        }
+    }
+
+    private func info(for metric: PulseMetric) -> String? {
+        switch metric {
+        case .gpu: "Read from the graphics driver. Some Macs do not report it; the widget then shows \"—\"."
+        case .network: "Download and upload per second over Wi-Fi and Ethernet."
+        case .disk: "Space used on the startup disk."
+        case .cpu, .ram, .battery: nil
         }
     }
 }
